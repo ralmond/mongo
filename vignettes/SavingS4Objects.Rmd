@@ -1,0 +1,359 @@
+---
+title: "JSON for S4 Objects"
+author: "Russell Almond"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{JSON for S4 Objects}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r libraries}
+library(mongo)
+```
+
+
+The `jsonlite` package provides two mechanisms for converting an arbitrary object to JSON, `toJSON` and `serializeJSON`.  For S4 classes neither of these messages are whole satisfactory.  There is probably no existing method for `toJSON`, and `serializeJSON` produces a format which is readable by another R program, but is difficulty to parse for any other program (e.g., a Mongo (r) database).
+
+## Example Class
+
+To illustrate the problem, I will start with an example class:  an event in a log file.  (This is a simplification of the `P4Message` class in the `Proc4` package[For more information about the `Proc4` package, see <https://pluto.coe.fsu.edu/Proc4>, <https://github.com/ralmond/Proc/>, and <https://ralmond.r-universe.dev/Proc4>.].)
+
+
+```{r eventClass}
+setClass("Event",
+         slots=list(uid="character",
+                    mess="character",
+                    timestamp="POSIXt",
+                    processed="logical",
+                    data="list"
+         ),
+         contains="MongoRec")
+
+anEvent <- new("Event",uid="Tester",mess="Typed",
+               timestamp=as.POSIXct("2022-05-30 16:38:58 EDT"),
+               processed=FALSE,
+               data=list(input="Hello, World!"))
+```
+
+::: {.note}
+The event class can be loaded by running `mongo::load_example()`.  The complete source file can be found using the command `system.file("examples","Event.R",package="mongo")`.
+:::
+
+The event class is divided into a number of header fields, and the data, which could be anything.  As such, it is perfect for storing in the Mongo database.  Mongo can build indexes in the header fields, making it straightforward to build a query that asked for all of the events where Fred typed something that has not yet been processed sorted by timestamp.  The data field can be anything that can be serialized in JSON.
+
+Note that this class is also a subclass of `MongoRec` which is a small class with a single slot `_id` (accessed with the function `m_id()`.  This is the Mongo identifier of the object.  The goal of object oriented programming is that we don't need to worry about the details in our package, as long at the authors of the `MongoRec` class have done their job properly.
+
+## Using `toJSON` to serialize an S4 class
+
+Neither `toJSON` nor `serializeJSON` work out of the box.
+The `toJSON` function simply throws an error, as the new class is not yet registered.  The function `serializeJSON` generates proper JSON output, but not in a format for which it will be easy to write queries about.
+
+```{r toJSON}
+try(jsonlite::toJSON(anEvent))
+jsonlite::serializeJSON(anEvent)
+```
+
+A simple trick produces something a lot closer to usable JSON output.  First, apply the `attributes()` function to turn the object into a list, and then `toJSON()` to turn the list into JSON.
+
+```{r attributesTrick}
+jsonlite::toJSON(attributes(anEvent),pretty=TRUE)
+```
+
+
+This is almost there.  The `toJSON` function has turned all of the scalars into vectors.  That is because, in R, there is no difference.  However, it is going be harder to build the queries if the header fields are all vectors.  The function `jsonlite::unbox()` takes care of this.  The function `unboxer()` takes this one step further, adding the unbox flag to any scaler it finds, no matter how deeply nested.
+
+```{r unboxer}
+jsonlite::prettify(
+  jsonlite::toJSON(lapply(attributes(anEvent),unboxer)),
+  indent=2)
+```
+
+This is much closer, but still a bit crude.  In particular, it is not particularly generalizable.  The `as.json` function and `as.jlist` helper function provide a more generalizable method for handling S4 classes.
+
+## The `as.json` and `as.jlist` functions.
+
+The `as.json()` function implements the following algorithm for converting an S4 class to JSON is as follows:
+
+1. Convert the object to a list using `attributes()`; this list will be called a _jlist_ in the sequel.
+2. Massage the _jlist_ to mark elements that need special handling.
+3. Call `toJSON()` on the resulting list.
+
+Steps 1 and 3 are common to many different S4 objects, it is step 2 that needs customization for each one.  So `as.json()` calls `as.jlist()` to perform this step.  The default method for `as.json()` is shown below.  (The function `as.json()` is generic, so if necessary a new method can be introduced at this level as well.)  Most of the options are simply passed to `toJSON`.
+
+```{r as.json.ANY, eval=FALSE}
+## as.json,ANY-method
+function(x, serialize = TRUE, ...) {
+  jlist <- as.jlist(x, attributes(x), serialize)
+  mongolite::toJSON(jlist,...)
+}
+```
+
+The first argument of `as.jlist()` is the object itself.  This is used mostly for method dispatch, but sometimes it will be easier to work with the original object than the jlist.  The second argument, `ml`, is the jlist (produced by `attributes(obj)`).  The third object is a serialize flag that is meant to indicate whether compound objects should be serialized or not.
+
+
+```{r as.jlist.Event}
+setMethod("as.jlist",c("Event","list"),
+          function(obj, ml, serialize=TRUE) {
+            ml$uid <- unboxer(ml$uid)
+            ml$mess <- unboxer(ml$mess)
+            ml$timestamp <- unboxer(ml$timestamp)
+            ml$processed <- unboxer(ml$processed)
+            ml$data <- unparseData(ml$data,
+                                   serialize)
+            callNextMethod(obj, ml, serialize)
+          })
+```
+
+Several things to note about this generic function.
+
+First, it modifies the `ml` argument, which is what is eventually returned.  In fact, the `ANY` method for `as.jlist` just returns the `ml` argument, so that is the base case.  Second, it finishes with a call to `callNextMethod`.  The idea is that the `MongoRec` method for `as.jlist` knows how to take care of the `_id` field:  `callNextMethod` ensures that code is called.  Finally, the `unparseData()` function is called to deal with the arbitrary data field.  This function is described in the following section.
+
+The next example shows `as.json()` in action.
+
+```{r testEvent}
+jsonlite::prettify(as.json(anEvent), indent=2)
+```
+
+## The `unparseData` function
+
+There are three ways to deal with the large complex object `data` whose exact composition is unknown.  The safest way is to call `serializeJSON` and turn it into a representation which can be read exactly back into R.  This, however, is not inspectable and will not be easy for other programs to parse.  The second way is to attempt to apply the `unboxer` function recursively to try to force scalar elements into scalars in the JSON.  These two approaches are implemented using `unparseData(data, serialize=TRUE)` and `unparseData(data, serialize=FALSE)` respectively.  Note that the `serialize` argument is passed from `as.json` to `as.jlist`, so this can be decided at a later point in time.
+
+```{r testEvent1}
+jsonlite::prettify(as.json(anEvent, serialize=FALSE),
+         indent=2)
+```
+
+
+The third method is to write custom code for unparsing (turning into something `toJSON` will properly serialize) and parsing the custom object.  This method is superior to the others, but much more costly in terms of programmer time.
+
+## Building S4 objects from JSON
+
+So the serialized form of the object has all of the fields needed to rebuild the object.  The `class` field gives the name of the class, and the other field the appropriate slot values.  The function `fromJSON` returns the serialized data as a list (a _jlist_), so essentially the object can be recreated by `new(class,jlist)`.
+
+The function `parse.json` function takes this approach.  It converts the JSON object to a list (using `fromJSON`) and then passes the list to a builder function for making the object.  The default builder function `buildObject` function.  This calls the `parse.jlist` method appropriate for the class to clean up the list of fields, then calls `new` to create the object.
+```{r parseObject, eval=FALSE}
+## buildObject
+function (rec, class=rec$class) {
+  jlp <- selectMethod("parse.jlist",c(class,"list"))
+  if (!is.null(jlp))
+    rec <- do.call(jlp,list(class,rec))
+  rec$class <- NULL # Make sure it is not marked as an extra argument.
+  do.call("new",c(class,rec))
+}
+```
+   
+::: {note}
+The actual `buildObject` implementation is slightly more complicated to try an handle some common S3 cases.
+:::
+
+This makes heavy use of the `do.call` function, which allows the program to compute the call to the function.  In the last line of the function, the argument list for `new` is built by prepending the class to the list of slot values `rec`, and then `new` is called on the result.
+
+::: {note}
+S4 (and R6) objects work with `new` function.  S3 object constructors do not have a uniform syntax.  The default `buildObject` implementation handles the common implementation of S3 classes as a list of fields with a `class` attribute.  However, in many cases, a custom builder is needed.  This can be passed as an argument to `as.json` (as well as `getOneRec` and `getManyRecs`).  
+:::
+
+Just as the `as.json` delegate much of its work to the `as.jlist`, `buildObject` delegates its work to the `parse.jlist` function.  Again, this is an object orient function, so that each class can process its own unique slots and then `callNextMethod` to deal with the inherited slots.  It bottoms out at an `ANY` method which removes the `class` element so it doesn't in the way when the object is built.)
+
+Note that there is object of the required class available to dispatch the method for the `parse.jlist` generic function.  So `buildObject` once again uses the `do.call` trick, this time with the `selectMethod` function used to find the method from the class name.
+
+Here is the `parse.jlist` method for the `Event` object.
+```{r parse.jlist.Event}
+setMethod("parse.jlist",c("Event","list"),
+          function(class, rec) {
+            rec$uid <- as.character(ununboxer(rec$uid))
+            rec$mess <- as.character(ununboxer(rec$mess))
+            rec$timestamp <- as.POSIXct(ununboxer(rec$timestamp))
+            rec$processed <- as.logical(ununboxer(rec$processed))
+            rec$data <- parseData(rec$data)
+            callNextMethod(class, rec)
+          })
+```
+
+For the most part, the steps are just ensuring that all of the slots of the class have the proper value types.  The `parseData` function is the inverse of `unparseData` and handles both serialized and non-serialized data.
+
+The call to `ununboxer` seems a bit odd.  The reason is mostly to facilitate testing.  This function removes the mark that `jsonlite` adds to indicate that a value should be a scalar and not a vector.  That mark will cause `all.equal` to fail, this makes it harder to text.  In particular, after adding the `ununboxer` calls, the `as.jlist` and `parse.jlist` are inverses, and this can be used to build unit tests.
+
+```{r test_parse_unparse}
+atlist <- attributes(anEvent)
+jlist <- as.jlist(anEvent,atlist)
+plist <- parse.jlist(anEvent,jlist)
+## Need to ensure order is the same.
+res <- try(testthat::expect_equal(plist[names(atlist)],atlist))
+res
+
+```
+Oops.  This failed.  The problem is related to the `_id` field inherited from `MongoRec`.  This can be seen below:
+
+```{r id_mismatch}
+atlist$"_id"
+plist$"_id"
+```
+
+The problem is two different conventions for a missing `_id` attribute.  The `Event` class needs an initializion method that takes care if this.  For the purposes of illustration, this is done manually below.
+```{r test_parse_unparse_fixed}
+m_id(anEvent) <- NA_character_
+atlist <- attributes(anEvent)
+jlist <- as.jlist(anEvent,atlist)
+plist <- parse.jlist(anEvent,jlist)
+## Need to ensure order is the same.
+res <- try(testthat::expect_equal(plist[names(atlist)],atlist))
+res
+```
+
+### A better test
+
+A more complete test would be to create an Event object, write it out to JSON format and read it back, building the object.  This test requires an equality test for the Event object, that is a method for `all.equal`;  as this is an S3 generic, the method will be `all.equal.Event`.
+
+```{r all.equal.Event}
+all.equal.Event <- function (target, current,
+                             ...,
+                             checkTimestamp=FALSE,check_ids=TRUE) {
+  if (!is(current,"Event"))
+    return(paste("Target is 'Event' and current is '", 
+                 class(current),"'."))
+  msg <- character()
+  if (check_ids)
+    if ((is.na(target@"_id") && !is.na(current@"_id")) ||
+        (!is.na(target@"_id") &&
+         !isTRUE(all.equal(target@"_id", current@"_id"))))
+      msg <- c(msg,"Database IDs do not match.")
+  if (!isTRUE(all.equal(target@uid,current@uid)))
+    msg <- c(msg,"User IDs do not match.")
+  if (!isTRUE(all.equal(target@mess,current@mess)))
+    msg <- c(msg,"Messages do not match.")
+  if (!isTRUE(all.equal(target@processed,current@processed)))
+    msg <- c(msg, "Processed flags do not match.")
+  ## Check Data
+  namet <- names(target@data)
+  namec <- names(current@data)
+  if (length(target@data) != length(current@data) ||
+      !setequal(namet,namec)) {
+    msg <- c(msg,"Names or number of data differ.")
+    if (length(setdiff(namet,namec)) > 0L)
+      msg <- c(msg,paste("Data in target but not in current:",
+                         setdiff(namet,namec)))
+    if (length(setdiff(namec,namet)) > 0L)
+      msg <- c(msg,paste("Data in current but not in target:",
+                         setdiff(namec,namet)))
+  }
+  msgd <- all.equal(target@data,current@data,...)
+  if (!isTRUE(msgd)) msg <- c(msg,msgd)
+  ## Timestamp
+  if (checkTimestamp) {
+    if (abs(target@timestamp-current@timestamp) >
+        as.difftime(.1,units="secs"))
+      msg <- c(msg,"Timestamps differ by more than .1 secs")
+  }
+
+  ## Return true if message list is empty.
+  if (length(msg)==0L) TRUE
+  else msg
+}
+```
+
+A few notes about this function.  First, `all.equal` returns true if the `target` and `current` entries are the same, and otherwise returns a character vector giving the differences.  So, the method builds up a list of differences.  Second, remember that `NA == NA` returns `NA`, not true.  Using `all.equal` will return `TRUE` if both arguments are true, but not false if they are different.  So `isTrue(all.equal(...))` test for equality with `NA==NA` being marked as true.
+
+So lets test this equality method.
+```{r testEquality}
+anEvent1 <- anEvent
+all.equal(anEvent,anEvent1)
+
+anEvent1@mess <- "Shouted"
+all.equal(anEvent,anEvent1)
+```
+            
+This looks good, so now for the final check.
+
+```{r RoundTrip}
+evJSON <- as.json(anEvent)
+anEvent1 <- buildObject(jsonlite::fromJSON(evJSON),"Event")
+all.equal(anEvent,anEvent1)
+```
+
+## Saving and Restoring S4 objects to a mongo database.
+
+A big benefit of being able to store S4 objects as JSON documents and restore them is that they now can be saved into a collection in a Mongo database.  The functions `saveRec`,  `getOneRec`, and `getManyRecs` facilitate that.
+
+First a reference to a Mongo collection can be made using the `mongo::MongoRec` class or the `mongolite::mongo` class.  `MongoRec` is a wrapper for `mongolite::mongo` which facilitates including a reference to the collection in an S4 or R6 class.  
+
+```{r mongoReference}
+#| eval: false
+eventCol <- MongoDB("Event")
+```
+
+The function `saveRec` saves a record to a collection.
+```{r saveRecs}
+#| eval: false
+load_example() ## Loads some sample events.
+anEvent <- saveRec(eventCol,anEvent)
+sampleEvents <- lapply(sampleEvents, function(e) saveRec(eventCol,e))
+```
+
+Note that in each case the Event object is saved back into the same variable.  The `saveRec` function returns the input object, but now has the Mongo ID (`m_id` field) set.  The `saveRec` function uses this field to determine whether it will add the record as a new document in the collection (`is.na(m_id(obj))`) or replace the object with the Mongo ID `m_id(obj)`.   
+
+The following example illustrates the idea:
+```{r InsertSave}
+#| eval: false
+mdbDrop(eventCol) ## This clears the collection.
+## Insertion
+newEvent <- Event(uid="Student1",mess="Startled",data=list(browser="chromium"))
+m_id(newEvent)
+mdbCount(eventCol,buildJQuery(uid="Student1")) ## Should be 0
+newEvent <- saveRec(eventCol,newEvent) ## Inserts
+m_id(newEvent) ## Set during the save.
+mdbCount(eventCol,buildJQuery(uid="Student1")) ## Should now be 1.
+savedEvent <- getOneRec(eventCol,buildJQuery(uid="Student1"))
+all.equal(savedEvent, newEvent)
+```
+
+```{r Replacement}
+#| eval: false
+m_id(newEvent)  ## non-NA value indicates that it has a representation in the database.
+newEvent$mess <- "Started" ## Fix misspelling
+mdbCount(eventCol,buildJQuery(uid="Student1")) ## Should be 1
+newEvent <- saveRec(eventCol,newEvent)  ## Replaces existing event.
+mdbCount(eventCol,buildJQuery(uid="Student1")) ## Should still be 1
+savedEvent <- getOneRec(eventCol,buildJQuery(uid="Student1"))
+savedEvent$mess ## Internal object was modified.
+```
+
+Note that `getOneRec` (also `getManyRecs`) and `mdbCount` take a query argument.  This is a JSON expression restricting the values of one or more fields.  The simplest version just selects records which match on the listed field.  The `buildJQuery` function converts from R syntax to JSON syntax.  
+
+There are two differences between `getOneRec` and `getManyRecs`. The first function returns a single object, and the second function returns a list of objects.  If there are multiple objects which match the query, then `getOneRec` will return them all.
+
+```{r getRecs}
+#| eval: false
+mdbDrop(eventCol) ## reset the collection contents
+load_example() ## Loads some sample events.
+sampleEvents <- lapply(sampleEvents, function(e) saveRec(eventCol,e))
+mdbCount(eventCol,buildJQuery(uid="Fred"))
+getOneRec(eventCol,buildJQuery(uid="Fred"))
+length(getManyRecs(eventCol,buildJQuery(uid="Fred")))
+
+mdbCount(eventCol,buildJQuery(uid="Phred")) ## Phred event is unique
+getOneRec(eventCol,buildJQuery(uid="Phred"))
+getManyRecs(eventCol,buildJQuery(uid="Phred")) ## Returns a list.
+```
+
+```
+
+## Summary:  JSON Representation of S4 objects
+
+
+The `serializeJSON` and `unserializeJSON` methods provide the safest way of storing an R object as a JSON string; however, the representation is not friendly for other applications.  In particular, if the object is stored in an Mongo database, and indexes are built on some of the fields, a class-specific approach is needed to map the slots of the S4 class to Mongo data types.
+
+The `as.jlist` and `parse.jlist` generic functions provide a regular mechanism for describing the transformation.  The slots of the object are elements of the `jlist`, and the `as.jlist` function is responsible for doing pre-processing on the objects before `toJSON` is called, and `parse.jlist` is responsible for post-processing after `fromJSON` is called.
+
+The generic function `as.json` can then be called to do the conversion, and the function `buildObject` can be called to reconstruct an object from the output of `fromJSON`.  Note that the basic mechanism may not work for all classes.  Some classes may need a special method for `as.json`.  Although `buildObject` is not generic, if needed, the developer can always write a `buildObject` function to do the work.
+
+Writing serialization and unserialization methods, like writing print and equality testing methods, is part of the work required when building a new class.  Although this framework doesn't do all the work, hopefully it makes the process a little bit more straightforward, providing a mechanism which can exploit the inheritance structure of the objects.
+
