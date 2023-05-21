@@ -5,6 +5,30 @@
 \alias{MongoDB-class}
 \alias{MongoDB}
 \title{MongoDB -- R6 class wrapping a connection to a Mongo database collection.}
+\usage{
+MongoDB(
+  collection = "test",
+  db = "test",
+  url = "mongodb://localhost",
+  verbose = FALSE,
+  noMongo = FALSE,
+  options = mongolite::ssl_options()
+)
+}
+\arguments{
+\item{collection}{character -- name of collection}
+
+\item{db}{character -- name of database}
+
+\item{url}{character -- URI for mongo connection (see [makeDBuri()])}
+
+\item{verbose}{logical -- Should operate in verbose mode.}
+
+\item{noMongo}{logical -- If true, then no connection to Mongo database will be made,
+and CRUD operations will become no-ops.}
+
+\item{options}{-- SSL options for connections, see [mongolite::ssl_options()].}
+}
 \description{
 MongoDB -- R6 class wrapping a connection to a Mongo database collection.
 }

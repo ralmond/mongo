@@ -141,6 +141,9 @@ the list of slots `ml`.  This also does not contain a call to
 `callNextMethod`, so it will serve as the termination point for an
 inheritance chain.
 
+\item \code{as.jlist(obj = MongoRec, ml = list)}: This method actually removes the Mongo id
+(`_id`) as generally, that is not pass as part of an update query.
+
 }}
 \examples{
 \dontrun{

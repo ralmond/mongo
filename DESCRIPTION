@@ -1,7 +1,7 @@
 Package: mongo
 Type: Package
 Title: Higher level interface to Mongo database
-Version: 0.9.0
+Version: 0.9.1
 Authors@R: 
     person(given = "Russell",
            family = "Almond",

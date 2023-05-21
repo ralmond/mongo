@@ -100,7 +100,14 @@ setRefClass("MongoDB",
                   resetDB = function () {
                     mongoObj <<- NULL
                   }))
-
+#' @rdname MongoDB-class
+#' @param collection character -- name of collection
+#' @param db character -- name of database
+#' @param url character -- URI for mongo connection (see [makeDBuri()])
+#' @param verbose logical -- Should operate in verbose mode.
+#' @param noMongo logical -- If true, then no connection to Mongo database will be made,
+#' and CRUD operations will become no-ops.
+#' @param options -- SSL options for connections, see [mongolite::ssl_options()].
 MongoDB <-
   function (collection="test",
                      db="test", url="mongodb://localhost",
@@ -366,7 +373,7 @@ mdb.import <-
 #' mdbInsert(irisdb,iris)
 #' mdbCount(irisdb)
 #' outfile <- tempfile(fileext="json")
-#' mdbExport(irisdb,file(outfile),sort='{"Petal.Length":-1}')
+#' mdbExport(irisdb,file(outfile),sort='{"Petal_Length":-1}')
 #' mdbDrop(irisdb)
 #' mdbCount(irisdb)
 #' mdbImport(irisdb,file(outfile))

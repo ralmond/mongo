@@ -63,7 +63,7 @@ testthat::test_that("fake_mongo",{
   fm <- make_fake()
   expect_no_condition(mdbDisconnect(fm))
   expect_no_condition(mdbDrop(fm))
-  expect_no_condition(mdbExport(fm,temfile()))
+  expect_no_condition(mdbExport(fm,tempfile()))
   expect_no_condition(mdbImport(fm,tempfile()))
   expect_no_condition(mdbIndex(fm,add=buildJQuery(processed=1)))
   expect_no_condition(mdbInsert(fm, iris))
@@ -141,11 +141,11 @@ testthat::test_that("fake_mongo  mdbCount",{
 
 testthat::test_that("fake_mongo  mdbDistinct",{
   fm <- make_fake()
-  expect_equal(mdbDistinct(fm),c("red","blue","green"))
-  expect_equal(mdbDistinct(fm,'{"name"="James Goodfellow"}'),character())
-  expect_true(is.na(mdbDistinct(fm)))
+  expect_equal(mdbDistinct(fm,"color"),c("red","blue","green"))
+  expect_equal(mdbDistinct(fm,"score",'{"name"="James Goodfellow"}'),character())
+  expect_true(is.na(mdbDistinct(fm,"color")))
   fm$resetQue("distinct")
-  expect_equal(mdbDistinct(fm),c("red","blue","green"))
+  expect_equal(mdbDistinct(fm,"color"),c("red","blue","green"))
 })
 
 testthat::test_that("fake_mongo  mdbFind",{
@@ -172,14 +172,14 @@ testthat::test_that("fake_mongo  mdbIterate",{
 
 testthat::test_that("fake_mongo  mdbMapreduce",{
   fm <- make_fake()
-  expect_equal(mdbMapreduce(fm),agg1)
+  expect_equal(mdbMapreduce(fm,map="",reduce=""),agg1)
   expect_equal(mdbMapreduce(fm,
                             map= "function (){emit(Math.floor(this.Petal_Length*5)/5, 1)}",
                             reduce="function (id,counts){return Array.sum(counts)}"),
               agg2)
-  expect_true(is.na(mdbMapreduce(fm)))
+  expect_true(is.na(mdbMapreduce(fm,map="",reduce="")))
   fm$resetQue("mapreduce")
-  expect_equal(mdbMapreduce(fm),agg1)
+  expect_equal(mdbMapreduce(fm,map="",reduce=""),agg1)
 })
 
 testthat::test_that("fake_mongo  mdbRun",{
@@ -207,6 +207,211 @@ testthat::test_that("fake_mongo  showDatabases",{
   expect_equal(showDatabases(fm),dbs)
 })
 
+testthat::test_that("fake_mongo logging",{
+  fm <- fake_mongo(noMongo=TRUE)
+  call1 <- list(op="test", no=1L)
+  call2 <- list(op="test", no=2L)
+  call3 <- list(op="test", no=3L)
+  expect_true(fm$logging())
+  fm$logCall(call1)
+  expect_equal(fm$lastLog(),call1)
+  fm$logging(FALSE)
+  expect_false(fm$logging())
+  fm$logCall(call2)
+  expect_equal(fm$lastLog(),call1)
+  fm$logging(TRUE)
+  expect_true(fm$logging())
+  fm$logCall(call3)
+  expect_equal(fm$getLog(),list(call3,call1))
+})
+
+testthat::test_that("fake_mongo reset log",{
+  db <- fake_mongo(noMongo=TRUE)
+  call1 <- list(op="test", no=1L)
+  call2 <- list(op="test", no=2L)
+  call3 <- list(op="test", no=3L)
+  db$logCall(call1)
+  db$logCall(call2)
+  expect_length(db$getLog(),2L)
+  db$resetLog()
+  expect_length(db$getLog(),0L)
+  expect_null(db$lastLog())
+})
+
+testthat::test_that("fake_mongo get log",{
+  db <- fake_mongo(noMongo=TRUE)
+  call1 <- list(op="test", no=1L)
+  call2 <- list(op="test", no=2L)
+  call3 <- list(op="test", no=3L)
+  db$logCall(call1)
+  db$logCall(call2)
+  db$logCall(call3)
+  expect_equal(db$getLog(),list(call3,call2,call1))
+  expect_equal(db$getLog(FALSE),list(call1,call2,call3))
+})
+
+testthat::test_that("mdbAggregate,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="aggregate",
+               pipeline=paste('[{"$group":{"_id":"$Species", "count": {"$sum":1},',
+                    '"average_Petal_Length": {"$avg":"$Petal_Length"}',
+                    '}}]'),
+               options='{"allowDiskUse":true}',handler=NULL,
+               pagesize=1000,iterate=FALSE)
+  mdbAggregate(db,pipeline=call$pipeline)
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("mdbCount,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="count",query=buildJQuery(app="test"))
+  mdbCount(db,call$query)
+  expect_equal(db$lastLog(),call)
+  mdbDisconnect(db)
+  expect_equal(db$lastLog(),list(op="disconnect"))
+})
+
+testthat::test_that("mdbDistinct,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="distinct",key="Species",query='{}')
+  mdbDistinct(db,"Species")
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("mdbDrop,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  mdbDrop(db)
+  expect_equal(db$lastLog(),list(op="drop"),label="mdbDrop,fake_mongo")
+})
+
+testthat::test_that("mdbImport/Export,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  outfile <- tempfile(fileext="json")
+  call <- list(op="export", con=file(outfile),bson=FALSE,
+               query='{}', fields='{}',
+               sort=buildJQuery("Petal_Length"=-1))
+  mdbExport(db,call$con,sort=call$sort)
+  expect_equal(db$lastLog(),call)
+  mdbImport(db,call$con)
+  expect_equal(db$lastLog(),list(op="import",con=call$con,bson=FALSE))
+})
+
+testthat::test_that("mdbFind,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="find",query=buildJQuery(Species="setosa"),
+               fields = '{"Petal_Width":1, "Petal_Length":1}',
+               sort = '{"Petal_Width":-1}', skip=0, limit=10,
+               handler = NULL, pagesize=1000)
+  mdbFind(db,call$query,call$fields,call$sort,limit=10)
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("mdbIndex,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="index",add=buildJQuery(Petal_Length=1,Petal_Width=-1),
+               remove="Petal_Length_1")
+  mdbIndex(db,add=call$add,remove=call$remove)
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("mdbInfo,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  mdbInfo(db)
+  expect_equal(db$lastLog(),list(op="info"))
+})
+
+testthat::test_that("mdbInsert,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="insert",data=buildJQuery(Student="Fred",
+                                            Scores=c(83,87,91,79),
+                                            Grade="B"),
+               pagesize=100,stop_on_error=TRUE,rest=list())
+  mdbInsert(db,data=call$data)
+  expect_equal(db$lastLog(),call)
+})
+
+
+testthat::test_that("mdbIterate,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="iterate", query='{}', fields='{"_id":0}',
+               sort='{}',skip=5,limit=10)
+  mdbIterate(db,skip=5,limit=10)
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("mdbMapreduce,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="mapreduce",
+               map= "function (){emit(Math.floor(this.Petal_Length*5)/5, 1)}",
+               reduce="function (id,counts){return Array.sum(counts)}",
+               query='{}', sort='{}', limit=0)
+  mdbMapreduce(db,map=call$map,reduce=call$reduce)
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("mdbRemove,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="remove", query=buildJQuery(Species="setosa"), just_one=FALSE)
+  mdbRemove(db,call$query)
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("mdbRename,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="rename",name="nominal",db=NULL)
+  mdbRename(db,"nominal")
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("mdbReplace,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="replace",query=buildJQuery(name="Fred"),
+               update=buildJQuery(name="Phred",gender="F"))
+  mdbReplace(db,call$query,call$update)
+  expect_equal(db$lastLog(),call)
+  db$resetLog()
+  mdbUpsert(db,call$query,call$update,FALSE)
+  expect_equal(db$lastLog(),call)
+
+  call$op <- "upsert"
+  db$resetLog()
+  mdbReplace(db,call$query,call$update,TRUE)
+  expect_equal(db$lastLog(),call)
+  db$resetLog()
+  mdbUpsert(db,call$query,call$update)
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("mdbRun,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="run", command=buildJQuery(ping=1),simplify=TRUE)
+  mdbRun(db,command=call$command)
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("mdbUpdate,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="update",query=buildJQuery(name="Fred"),
+               update='{"$set":{"gender":"F"}}',
+               filters=NULL,upsert=FALSE,multiple=FALSE)
+  mdbUpdate(db,call$query,call$update)
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("showDatabases,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="showDatabases",uri="mongodb://localhost")
+  showDatabases(db)
+  expect_equal(db$lastLog(),call)
+})
+
+testthat::test_that("showCollections,fake_mongo",{
+  db <- fake_mongo(noMongo=TRUE)
+  call <- list(op="showCollections",dbname="iris",
+               uri="mongodb://localhost")
+  showCollections(db,dbname="iris")
+  expect_equal(db$lastLog(),call)
+})
 
 
 

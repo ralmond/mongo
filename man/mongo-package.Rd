@@ -4,12 +4,12 @@
 \alias{mongo}
 \title{\packageTitle{mongo}}
 \description{
-\packageDescription{mongo}}
+\packageDescription{mongo}
 }
 \details{
 The DESCRIPTION file:
-\packageDESCRIPTION{mongo}}
-\packageIndices{mongo}}
+\packageDESCRIPTION{mongo}
+\packageIndices{mongo}
 
 This package provides extensions to the `mongolite` and `jsonlite` package, specifically for saving and restoring
 S4 objects as JSON documents in a mongo database.
@@ -200,10 +200,10 @@ corresponding to the mongo database used by your system).
 }
 
 \author{
-\packageAuthor{mongo}}
+\packageAuthor{mongo}
 
 Maintainer:
-\packageMaintainer{mongo}}
+\packageMaintainer{mongo}
 }
 \examples{
   \dontrun{

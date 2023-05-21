@@ -397,7 +397,6 @@ setMethod("as.jlist",c("ANY","list"), function(obj,ml,serialize=TRUE) {
   ml
 })
 
-#' @rdname as.json
 #' @describeIn as.json  This method actually removes the Mongo id
 #' (`_id`) as generally, that is not pass as part of an update query.
 setMethod("as.jlist",c("MongoRec","list"), function(obj,ml,serialize=TRUE) {

@@ -6,11 +6,22 @@
 \alias{fake_mongo}
 \alias{mdbAggregate,fake_mongo-method}
 \alias{mdbCount,fake_mongo-method}
+\alias{mdbDisconnect,fake_mongo-method}
 \alias{mdbDistinct,fake_mongo-method}
+\alias{mdbDrop,fake_mongo-method}
+\alias{mdbExport,fake_mongo-method}
+\alias{mdbImport,fake_mongo-method}
 \alias{mdbFind,fake_mongo-method}
+\alias{mdbIndex,fake_mongo-method}
+\alias{mdbInfo,fake_mongo-method}
+\alias{mdbInsert,fake_mongo-method}
 \alias{mdbIterate,fake_mongo-method}
 \alias{mdbMapreduce,fake_mongo-method}
+\alias{mdbRemove,fake_mongo-method}
+\alias{mdbRename,fake_mongo-method}
+\alias{mdbReplace,fake_mongo-method}
 \alias{mdbRun,fake_mongo-method}
+\alias{mdbUpdate,fake_mongo-method}
 \alias{showDatabases,fake_mongo-method}
 \alias{showCollections,fake_mongo-method}
 \title{A simulated `MongoDB` object for testing}
@@ -21,6 +32,8 @@ fake_mongo(
   url = "mongodb://localhost",
   verbose = FALSE,
   options = mongolite::ssl_options(),
+  noMongo = TRUE,
+  logging = TRUE,
   aggregate = list(),
   count = list(),
   distinct = list(),
@@ -43,7 +56,22 @@ fake_mongo(
 
 \S4method{mdbCount}{fake_mongo}(db, query = "{}")
 
+\S4method{mdbDisconnect}{fake_mongo}(db)
+
 \S4method{mdbDistinct}{fake_mongo}(db, key, query = "{}")
+
+\S4method{mdbDrop}{fake_mongo}(db)
+
+\S4method{mdbExport}{fake_mongo}(
+  db,
+  con = stdout(),
+  bson = FALSE,
+  query = "{}",
+  fields = "{}",
+  sort = "{\\"_id\\":1}"
+)
+
+\S4method{mdbImport}{fake_mongo}(db, con = stdout(), bson = FALSE)
 
 \S4method{mdbFind}{fake_mongo}(
   db,
@@ -56,6 +84,12 @@ fake_mongo(
   pagesize = 1000
 )
 
+\S4method{mdbIndex}{fake_mongo}(db, add = NULL, remove = NULL)
+
+\S4method{mdbInfo}{fake_mongo}(db)
+
+\S4method{mdbInsert}{fake_mongo}(db, data, pagesize = 100, stop_on_error = TRUE, ...)
+
 \S4method{mdbIterate}{fake_mongo}(
   db,
   query = "{}",
@@ -67,7 +101,22 @@ fake_mongo(
 
 \S4method{mdbMapreduce}{fake_mongo}(db, map, reduce, query = "{}", sort = "{}", limit = 0)
 
+\S4method{mdbRemove}{fake_mongo}(db, query = "{}", just_one = FALSE)
+
+\S4method{mdbRename}{fake_mongo}(mdb, name, db = NULL)
+
+\S4method{mdbReplace}{fake_mongo}(db, query, update = "{}", upsert = FALSE)
+
 \S4method{mdbRun}{fake_mongo}(db, command = "{\\"ping\\":1}", simplify = TRUE)
+
+\S4method{mdbUpdate}{fake_mongo}(
+  db,
+  query,
+  update = "{\\"$set\\":{}}",
+  filters = NULL,
+  upsert = FALSE,
+  multiple = FALSE
+)
 
 \S4method{showDatabases}{fake_mongo}(
   db = NULL,
@@ -93,6 +142,10 @@ fake_mongo(
 
 \item{options}{ANY -- SSL options passed to `mongo` call.}
 
+\item{noMongo}{logical -- If true (default), no attempt is made to connect to the Mongo database.}
+
+\item{logging}{logical -- If true (default), then calls to the database will be logged.}
+
 \item{aggregate}{list -- simulated responses from [mdbAggregate()] queries.}
 
 \item{count}{list -- simulated responses from [mdbCount()] queries.}
@@ -111,7 +164,7 @@ fake_mongo(
 
 \item{collections}{list -- simulated responses from [showCollections()] queries.}
 
-\item{pipeline, handler, pagesize, query, key, fields, sort, skip, limit, map, reduce, command, simplify, uri, dbname}{--
+\item{pipeline, handler, pagesize, query, key, fields, sort, skip, limit, map, reduce, command, simplify, uri, dbname, con, bson, add, remove, data, stop_on_error, just_one, mdb, name, update, upsert, filters, multiple, ...}{--
 arguments to the generic functions which are ignored in the `fake_mongo` methods.}
 }
 \value{
@@ -132,6 +185,7 @@ Internally the `fake_mongo` class has a list of iterators named "aggregate", "co
 in the iterator (if it exists) or else will call the parent method to get the default return value (varies with generic
 function).  Usually, no connection to a mongo database is made.
 
+
  The Queue names are given in the following table.
   \tabular{rr}{
    \strong{Method} \tab \strong{Queue Name} \cr
@@ -148,6 +202,10 @@ function).  Usually, no connection to a mongo database is made.
 
 These names are used as `which` arguments to the `$que(which)` and `$resetQueue(which)`
 methods as well as for initializing the queue using the `fake_mongo` constructor.
+
+If logging is turned on (either by setting `logging=TRUE` in the constructor, or by calling
+`$logging(TRUE)`, then each `mdbXXX` method will log the call to the `log` collection.
+The `$getLog()` and `$lastLog()` methods access the queue, and `$resetQueue()` resets it.
 }
 \section{Functions}{
 \itemize{
@@ -157,12 +215,22 @@ methods as well as for initializing the queue using the `fake_mongo` constructor
 \section{Fields}{
 
 \describe{
-\item{\code{queues}}{a named list of `\linkS4class{iterator}` objects which provide the simulated responses.
+\item{\code{queues}}{a named list of `\linkS4class{iterator}` objects which provide the simulated responses.}
+
+\item{\code{log}}{a list of database calls made}
+
+\item{\code{logp}}{logical If `TRUE` then method class will be logged.
 
 # Methods
 * `$que(which)` -- Returns the internal iterator associated with the operation `which`.
 * `$resetQue(which,newElements)` -- Calls `$reset()` method on `$que(which)`.
-* `$resetAll()` -- resets all queues}
+* `$resetAll()` -- resets all queues
+* `$logging(newState)` -- Checks whether or not logging is currently being done.  If `newState` is
+supplied, the logging is turned on or off.
+* `$logCall(call)`  -- if logging is turned on, `call` is added to the log.
+* `$getLog(newestFirst=TRUE)` -- returns the entire log.  If argument is `FALSE` order is reversed.
+* `$lastLog()` -- returns the most recently added element in the log.
+* `$resetLog()` -- clears the log.}
 }}
 
 
