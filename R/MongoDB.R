@@ -240,7 +240,7 @@ mdb.disconnect <-
 #'
 #' @examples
 #' ## Setting noMongo=TRUE, so we don't actually run this.
-#' testDB <- MongoDB("test", noMongo=)
+#' testDB <- MongoDB("test", noMongo=!interactive())
 #' mdbDisconnect(testDB)
 setGeneric("mdbDisconnect", function (db, gc = TRUE)
   standardGeneric("mdbDisconnect"))
