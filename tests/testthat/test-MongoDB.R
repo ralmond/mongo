@@ -71,8 +71,10 @@ test_that("MongoDB avaliable",{
   skip_if_not(MongoAvailable)
   mdb_null <- MongoDB("foo","bar","")
   expect_false(mdb_null$available())
+  expect_false(mdbAvailable(mdb_null))
   mdb_valid <- MongoDB("foo","bar","mongodb://localhost")
   expect_true(mdb_valid$available())
+  expect_true(mdbAvailable(mdb_valid))
 })
 
 test_that("MondoDB show and tell",{

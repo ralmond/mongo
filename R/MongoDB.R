@@ -139,6 +139,8 @@ setOldClass("mongo")
 #' @exportClass JSONDB
 #' @details
 #' The following operations are supported:
+#' * [mdbAvailable()] -- Returns logical value.  If false, CRUD operations
+#' will basically be no-ops.
 #' * [mdbAggregate()] -- Runs an aggregation pipeline
 #' * [mdbCount()] -- Counts records matching query
 #' * [mbdDisconnect()] -- Drops connection to database (will be
@@ -176,6 +178,24 @@ setMethod("show","MongoDB",function(object) {
   cat(toString(object),"\n")
 })
 
+mdb.available <- function() {}
+#' Is the collection available for writing.
+#'
+#' Returns `FALSE` if the connection to the database is not available, so the CRUD operations (\link{mdbCRUD}).
+#' will not be executed.
+#'
+#' @param db (or MongoDB mongo) -- Reference to collection
+#' @return logical value.  If false, there is no active connection and CRUD operations will be no-ops.
+#' @export mdbAvailable
+setGeneric("mdbAvailable",function(db) standardGeneric("mdbAvailable"))
+#' @rdname mdbAvailable
+#' @exportMethod mdbAvailable
+setMethod("mdbAvailable","MongoDB",function(db) db$available())
+#' @rdname mdbAvailable
+#' @note
+#' When using the \code{mongolite::\link[mongolite]mongo} collection reference
+#' operations are not skipped.
+setMethod("mdbAvailable","mongo",function(db) TRUE)
 
 
 mdb.aggregate <-

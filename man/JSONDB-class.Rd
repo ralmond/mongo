@@ -46,6 +46,8 @@ Class which supports the mdbCRUD methods.
 }
 \details{
 The following operations are supported:
+* [mdbAvailable()] -- Returns logical value.  If false, CRUD operations
+will basically be no-ops.
 * [mdbAggregate()] -- Runs an aggregation pipeline
 * [mdbCount()] -- Counts records matching query
 * [mbdDisconnect()] -- Drops connection to database (will be
