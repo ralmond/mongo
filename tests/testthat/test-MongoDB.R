@@ -75,6 +75,11 @@ test_that("MongoDB avaliable",{
   expect_true(mdb_valid$available())
 })
 
+test_that("MondoDB show and tell",{
+
+})
+
+
 test_that("MongoDB drop",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
@@ -279,6 +284,10 @@ test_that("MongoDB iterate",{
     expect_in_table(item,iris)
   }
   expect_equal(n,10)
+})
+
+test_that("MongoDB findL",{
+
 })
 
 test_that("MongoDB remove",{

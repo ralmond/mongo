@@ -99,6 +99,11 @@ setRefClass("MongoDB",
                   # This method should probably not be used outside of the class.
                   resetDB = function () {
                     mongoObj <<- NULL
+                  },
+                  toString = function() {
+                    sprintf("<MongoDB: %s.%s@%s>",
+                            dbname,colname,
+                            ifelse(noMongo,"/dev/null",dburi))
                   }))
 #' @rdname MongoDB-class
 #' @param collection character -- name of collection
@@ -121,6 +126,55 @@ MongoDB <-
 
 setOldClass("mongo")
 
+#' Class which supports the mdbCRUD methods.
+#' @name JSONDB-class
+#' @aliases mdbCRUD
+#'
+#' The CRUD (Create, Read, Update and Delete) are the basic set of
+#' operators for manipulating a database.  The `mongo` package defines
+#' a number of operators (mostly named `mdbXXX`) which calls the
+#' corresponding CRUD operations.  The `JSONDB` class is intended for
+#' any class that supports these operations.
+#'
+#' @exportClass JSONDB
+#' @details
+#' The following operations are supported:
+#' * [mdbAggregate()] -- Runs an aggregation pipeline
+#' * [mdbCount()] -- Counts records matching query
+#' * [mbdDisconnect()] -- Drops connection to database (will be
+#' reconnected on next operation).
+#' * [mdbDistinct()] -- Lists unique values of a field.
+#' * [mdbDrop()] -- Drops the collection from the database.  This is a
+#' fast way to clear a database.
+#' * [mdbImport()],[mdbExport()] -- Imports/Exports documents
+#' into/from a collection from a file (or connection).
+#' * [mdbFind()] -- Finds documents matching query and returns result
+#' as a `data.frame`.
+#' * [mdbIndex()] -- Adds or removes an index from a collection.
+#' * [mdbInfo()] -- Returns info about a collection.
+#' * [mdbInsert()] -- Adds one or more documents into a collections.
+#' Works with both `data.frame` (one document per row) and JSON
+#' character vectors (one document per element).
+#' * [mdbIterate()]/[mdbFindL()] -- Finds documents matching query and returns
+#' these as an iterator/list.
+#' * [mdbMapreduce()] -- Executes a mapreduce operation using
+#' javascript map and reduce oerations.
+#' * [mdbRemove()] -- Removes matching documents from a collection.
+#' * [mdbRename()] -- Renames a collection.
+#' * [mdbReplace()]/[mdbUpsert()] -- Replaces a document in a
+#' collection.
+#' * [mdbRun()] -- Runs a Mongo command.
+#' * [mdbUpdate()] -- Modifies records in a database.
+#' * [showDatabases()] -- Lists available databases.
+#' * [showCollections()] -- Lists collections in a database.
+setClassUnion("JSONDB",c("MongoDB","mongo"))
+
+setMethod("toString","MongoDB", function(x, ...) {
+  x$toString()
+})
+setMethod("show","MongoDB",function(object) {
+  cat(toString(object),"\n")
+})
 
 
 
@@ -753,6 +807,28 @@ setMethod("mdbIterate", "mongo",
             db$iterate(query,fields, sort, skip, limit)
 })
 
+#' @rdname mdbIterate
+#' @export mdbFindL
+setGeneric("mdbFindL", function (db, query = '{}', fields = '{"_id":0}',
+                                   sort = '{}', skip = 0, limit = 0)
+  standardGeneric("mdbFindL"))
+#' @rdname mdbIterate
+#' @exportMethod mdbFindL
+setMethod("mdbFindL", "JSONDB",
+  function (db, query = '{}', fields = '{"_id":0}',
+            sort = '{}', skip = 0, limit = 0) {
+    n <- limit
+    if (n== 0L || !is.finite(n)) {
+      n <-mdbCount(db,query)
+      if (is.na(n)) return (NULL)
+    }
+    iter <- mdbIterate(db,query,fields,sort,skip,limit)
+    if (is.null(iter)) return (NULL)
+    iter$batch(n)
+})
+
+
+
 
 mdb.mapreduce <-
   function(){
@@ -934,7 +1010,6 @@ mdb.replace <-
 #' @seealso [\link[mongolite]{mongo}] [\link{mdbFind}] [\link{mdbUpdate}]
 #' \url{https://www.mongodb.com/docs/manual/reference/method/db.collection.replaceOne/}
 #' @export mdbReplace
-#' @exportMethod mdbReplace
 #'
 #' @details
 #' In this method, the entire selected document (including the `_id`
@@ -957,6 +1032,7 @@ mdb.replace <-
 setGeneric("mdbReplace", function (db, query, update='{}', upsert=FALSE)
   standardGeneric("mdbReplace"))
 #' @rdname mdbReplace
+#' @exportMethod mdbReplace
 setMethod("mdbReplace","MongoDB",
   function (db, query, update='{}',upsert=FALSE) {
     if (!db$available()) return(NULL)
@@ -967,10 +1043,17 @@ setMethod("mdbReplace","mongo",
   function (db, query, update='{}', upsert=FALSE) {
     db$replace(query,update,upsert)
 })
-mdbUpsert <- function (db, query, update='{}',
-                      upsert = TRUE) {
+#' @rdname mdbReplace
+#' @export mdbUpsert
+setGeneric("mdbUpsert", function (db, query, update='{}', upsert=TRUE)
+  standardGeneric("mdbUpsert"))
+#' @rdname mdbReplace
+#' @exportMethod mdbUpsert
+setMethod("mdbUpsert","JSONDB",
+  function (db, query, update='{}', upsert = TRUE) {
   mdbReplace(db, query, update, upsert)
-}
+  })
+
 
 mdb.run <-
   function(){

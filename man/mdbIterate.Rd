@@ -4,6 +4,8 @@
 \alias{mdbIterate}
 \alias{mdbIterate,MongoDB-method}
 \alias{mdbIterate,mongo-method}
+\alias{mdbFindL}
+\alias{mdbFindL,JSONDB-method}
 \title{Returns documents as lists (jlists) from the database.}
 \usage{
 mdbIterate(
@@ -25,6 +27,24 @@ mdbIterate(
 )
 
 \S4method{mdbIterate}{mongo}(
+  db,
+  query = "{}",
+  fields = "{\\"_id\\":0}",
+  sort = "{}",
+  skip = 0,
+  limit = 0
+)
+
+mdbFindL(
+  db,
+  query = "{}",
+  fields = "{\\"_id\\":0}",
+  sort = "{}",
+  skip = 0,
+  limit = 0
+)
+
+\S4method{mdbFindL}{JSONDB}(
   db,
   query = "{}",
   fields = "{\\"_id\\":0}",

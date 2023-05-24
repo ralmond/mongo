@@ -420,6 +420,12 @@ setMethod("mdbReplace","fake_mongo",
             db$logCall(list(op=ifelse(upsert,"upsert","replace"), query=query, update=update))
             callNextMethod()
           })
+#' @rdname fake_mongo-class
+setMethod("mdbUpsert","fake_mongo",
+          function (db, query, update='{}', upsert=TRUE) {
+            db$logCall(list(op=ifelse(upsert,"upsert","replace"), query=query, update=update))
+            callNextMethod()
+          })
 
 #' @rdname fake_mongo-class
 setMethod("mdbRun","fake_mongo",

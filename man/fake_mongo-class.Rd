@@ -20,6 +20,7 @@
 \alias{mdbRemove,fake_mongo-method}
 \alias{mdbRename,fake_mongo-method}
 \alias{mdbReplace,fake_mongo-method}
+\alias{mdbUpsert,fake_mongo-method}
 \alias{mdbRun,fake_mongo-method}
 \alias{mdbUpdate,fake_mongo-method}
 \alias{showDatabases,fake_mongo-method}
@@ -106,6 +107,8 @@ fake_mongo(
 \S4method{mdbRename}{fake_mongo}(mdb, name, db = NULL)
 
 \S4method{mdbReplace}{fake_mongo}(db, query, update = "{}", upsert = FALSE)
+
+\S4method{mdbUpsert}{fake_mongo}(db, query, update = "{}", upsert = TRUE)
 
 \S4method{mdbRun}{fake_mongo}(db, command = "{\\"ping\\":1}", simplify = TRUE)
 

@@ -5,6 +5,7 @@
 \alias{mdbUpsert}
 \alias{mdbReplace,MongoDB-method}
 \alias{mdbReplace,mongo-method}
+\alias{mdbUpsert,JSONDB-method}
 \title{Replace a document with a new document}
 \usage{
 mdbReplace(db, query, update = "{}", upsert = FALSE)
@@ -12,6 +13,10 @@ mdbReplace(db, query, update = "{}", upsert = FALSE)
 \S4method{mdbReplace}{MongoDB}(db, query, update = "{}", upsert = FALSE)
 
 \S4method{mdbReplace}{mongo}(db, query, update = "{}", upsert = FALSE)
+
+mdbUpsert(db, query, update = "{}", upsert = TRUE)
+
+\S4method{mdbUpsert}{JSONDB}(db, query, update = "{}", upsert = TRUE)
 }
 \arguments{
 \item{db}{(or MongoDB mongo) Reference to the collection.}
