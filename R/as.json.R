@@ -413,7 +413,7 @@ setGeneric("parse.jlist",function(class,rec)
   standardGeneric("parse.jlist"))
 
 
-#' @describeIn parse.json Base case for callNextMmethod; just returns
+#' @describeIn parse.json Base case for callNextMethod; just returns
 #' the slot list.
 setMethod("parse.jlist",c("ANY","list"),
           function(class,rec) {

@@ -103,7 +103,7 @@ setRefClass("MongoDB",
                   toString = function() {
                     sprintf("<MongoDB: %s.%s@%s>",
                             dbname,colname,
-                            ifelse(noMongo,"/dev/null",dburi))
+                            ifelse(noMongo,"/dev/null",uri))
                   }))
 #' @rdname MongoDB-class
 #' @param collection character -- name of collection

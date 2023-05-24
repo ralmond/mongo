@@ -78,7 +78,10 @@ test_that("MongoDB avaliable",{
 })
 
 test_that("MondoDB show and tell",{
-
+  m1 <- MongoDB("testthis","test","mongodb://localhost")
+  expect_equal(toString(m1),"<MongoDB: test.testthis@mongodb://localhost>")
+  m2 <- MongoDB("testthis","test",character())
+  expect_equal(toString(m2),"<MongoDB: test.testthis@/dev/null>")
 })
 
 
