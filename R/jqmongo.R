@@ -331,23 +331,21 @@ getManyRecs <- function(col,jquery,builder=buildObject,
 saveRec <- function (col, rec, serialize=TRUE) {
   if (!is.null(col)) {
     jso <- as.json(rec,serialize)
-    if (is.na(rec@"_id")) {
+    if (is.na(m_id(rec))) {
       ## Insert
       mdbInsert(col,jso)
       it <- mdbIterate(col,jso,'{"_id":true}',limit=1)
-      rec@"_id" <- it$one()$"_id"
-      names(rec@"_id") <- "oid" ## Aids in extraction
+      m_id(rec) <- it$one()$"_id"
     } else {
-      if (mdbCount(col,paste('{"_id":{"$oid":"',rec@"_id",'"}}',sep=""))) {
+      if (mdbCount(col,paste('{"_id":{"$oid":"',m_id(rec),'"}}',sep=""))) {
         ## Replace
-        mdbUpdate(col,paste('{"_id":{"$oid":"',rec@"_id",'"}}',sep=""),
+        mdbUpdate(col,paste('{"_id":{"$oid":"',m_id(rec),'"}}',sep=""),
                    paste('{"$set":',jso,'}',sep=""))
       } else {
         ## ID is out of date, insert and get new ID.
         mdbInsert(col,jso)
         it <- mdbIterate(col,jso,'{"_id":true}',limit=1)
-        rec@"_id" <- it$one()$"_id"
-        names(rec@"_id") <- "oid" ## Aids in extraction
+        m_id(rec) <- it$one()$"_id"
       }
     }
   } else {

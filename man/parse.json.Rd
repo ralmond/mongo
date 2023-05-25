@@ -51,7 +51,7 @@ the slots prior to object creation.  Generally, this is the method
 that needs to be specialized.  See the `vignette("JSON for S4
 Objects")`.
 
-\item \code{parse.jlist(class = ANY, rec = list)}: Base case for callNextMmethod; just returns
+\item \code{parse.jlist(class = ANY, rec = list)}: Base case for callNextMethod; just returns
 the slot list.
 
 \item \code{buildObject()}: This method takes the jlist, cleans it with an appropriate
