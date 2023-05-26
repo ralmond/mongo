@@ -31,9 +31,16 @@ testthat::test_that("m_id", {
   testthat::expect_equal(m_id(mr),c(oid="012345"))
 })
 
+testthat::test_that("(de)codeClass",{
+  expect_equal(codeClass(class(MongoRec())),unboxer("mongo::MongoRec"))
+  expect_equal(codeClass(class(matrix(1:4,2,2))),c("matrix","array"))
+  expect_equal(decodeClass("mongo::MongoRec"),class(MongoRec()))
+  expect_equal(decodeClass(c("matrix","array")),class(matrix(1:4,2,2)))
+})
+
 testthat::test_that("as.jlist_ANY", {
   inlist <- list(name="test",data=1:3,time=Sys.time())
-  testthat::expect_equal(as.jlist(TRUE,inlist),inlist)
+  testthat::expect_equal(as.jlist(TRUE,inlist),c(inlist,class=list(unboxer("logical"))))
 })
 
 

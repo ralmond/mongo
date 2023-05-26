@@ -381,19 +381,57 @@ setMethod("as.json","MongoRec",
                    raw[1], null[1], na[1])
           })
 
+#' Adds/removes  package information to class descriptions
+#'
+#' If the class has a "package" attribute, then changes the descriptor to a form
+#' "package::classname", e.g., the \code{\linkS4class{MongoRec}} class, which lives in the
+#' "mongo" package becomes `mongo::MongoRec`.  The function `decodeClass()` reverses this.
+#'
+#' @param class character Class identifiers.  For `codeClass()` these might have the "package"
+#' attribute set.  For `decodeClass()` the package attribute is represented by the prefix "package::".
+#' @returns  The function `codeClass()` returns a character vector with "package" attributes changed to
+#' "package::" prefixes.  The function `decodeClass()` returns a character vector with "package::"
+#' prefixes removed and "package" attributes set.
+#'
+#' @note
+#'
+#' The `codeClass()` function applies [unboxer()] to mark single class names as singletons.
+#' The `decodeClass()` function applies [ununboxer()] to remove the mark if needed.  Also,
+#' if `class` is a list (happens if it was not quoted with [unboxer()] when saved to JSON),
+#' `decodeClass()` will try to coerce it into a character vector.
+#' @export codeClass
+#' @examples
+#' codeClass(MongoRec())
+#' codeClass(matrix(1:4,2,2))
+#' decodeClass(codeClass(MongoRec())
+#' decodeClass(codeClass(matrix(1:4,2,2)))
+#'
+codeClass <- function(class) {
+  pack <- attr(class,"package")
+  if (!is.null(pack) && pack != ".GlobalEnv") {
+      class <- paste(pack,class,sep="::")
+  }
+  unboxer(class)
+}
+#' @rdname decodeClass
+#' @export decodeClass
+decodeClass <- function (class) {
+  class <- as.character(ununboxer(class))
+  if (length(class)==1L && grepl("::",class)) {
+    cc <- strsplit(class,"::")[[1]]
+    class <- cc[2]
+    attr(class,"package") <- cc[1]
+  }
+  class
+}
+
 #' @describeIn as.json
 #' This is the default method, it simply returns
 #' the list of slots `ml`.  This also does not contain a call to
 #' `callNextMethod`, so it will serve as the termination point for an
 #' inheritance chain.
 setMethod("as.jlist",c("ANY","list"), function(obj,ml,serialize=TRUE) {
-  if (length(ml$class) == 1L) {
-    pack <- attr(ml$class,"package")
-    if (!is.null(pack) && pack != ".GlobalEnv") {
-      ml$class <- paste(pack,ml$class,sep="::")
-    }
-    ml$class <- unboxer(ml$class)
-  }
+  ml$class <- codeClass(class(obj))
   ml
 })
 
@@ -426,7 +464,7 @@ isDefaultMethod <- function(meth) {
 
 #' @describeIn parse.json This method takes the jlist, cleans it with an appropriate
 #' `parse.jlist` method and then tries to generate an object based on the class.
-buildObject <- function (rec, class=rec$class) {
+buildObject <- function (rec, class=decodeClass(rec$class)) {
   if (is.list(class) && length(class)==1L)
     ## toJSON has wrapped the class name, fix.
     class <- as.character(class[[1]])

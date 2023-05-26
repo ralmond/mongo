@@ -12,7 +12,7 @@ parse.jlist(class, rec)
 
 \S4method{parse.jlist}{ANY,list}(class, rec)
 
-buildObject(rec, class = rec$class)
+buildObject(rec, class = decodeClass(rec$class))
 
 parse.json(encoded, builder = buildObject)
 
