@@ -88,6 +88,7 @@ test_that("MondoDB show and tell",{
 test_that("MongoDB drop",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbInsert(mdb,iris)
   dblist <- showCollections(mdb)$name
   expect_contains(dblist,"testthis")
@@ -101,6 +102,7 @@ test_that("MongoDB drop",{
 test_that("MongoDB insert",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,iris)
   testthat::expect_equal(mdbCount(mdb),nrow(iris))
@@ -109,6 +111,7 @@ test_that("MongoDB insert",{
 test_that("MongoDB count",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,iris)
   testthat::expect_equal(mdbCount(mdb),nrow(iris))
@@ -123,6 +126,7 @@ test_that("MongoDB count",{
 test_that("MongoDB replace",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,c('{"name":"Fred", "gender":"M"}',
                   '{"name":"George", "gender":"M"}'))
@@ -140,6 +144,7 @@ test_that("MongoDB replace",{
 test_that("MongoDB find",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,iris)
   results <- mdbFind(mdb,'{"Species":"setosa"}',
@@ -153,6 +158,7 @@ test_that("MongoDB find",{
 test_that("MongoDB index",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,iris)
   mdbIndex(mdb,add='{"Petal_Length":1}')
@@ -172,6 +178,7 @@ test_that("MongoDB index",{
 test_that("MongoDB mapreduce",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,iris)
   histdata <-
@@ -188,6 +195,7 @@ test_that("MongoDB mapreduce",{
 test_that("MongoDB update",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,c('{"name":"Fred", "gender":"M"}',
                   '{"name":"George", "gender":"M"}'))
@@ -206,6 +214,7 @@ test_that("MongoDB update",{
 test_that("MongoDB aggregate",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,iris)
   stats <- mdbAggregate(mdb,
@@ -245,6 +254,7 @@ test_that("MongoDB rename",{
 test_that("MongoDB distinct",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,iris)
   spec <- mdbDistinct(mdb,"Species")
@@ -254,6 +264,7 @@ test_that("MongoDB distinct",{
 test_that("MongoDB info",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,iris)
   expect_equal(mdbInfo(mdb)$stats$count,nrow(iris))
@@ -262,6 +273,7 @@ test_that("MongoDB info",{
 test_that("MongoDB run",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,iris)
   cs <- mdbRun(mdb,'{"collStats":"testthis"}')
@@ -273,6 +285,7 @@ test_that("MongoDB run",{
 test_that("MongoDB iterate",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,iris)
   iter <- mdbIterate(mdb,limit=10)
@@ -292,12 +305,16 @@ test_that("MongoDB iterate",{
 })
 
 test_that("MongoDB findL",{
-
+  skip_if_not(MongoAvailable)
+  mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
+  skip("Test not written")
 })
 
 test_that("MongoDB remove",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdb))
   mdbDrop(mdb)
   mdbInsert(mdb,iris)
   expect_equal(mdbCount(mdb),nrow(iris))
@@ -325,6 +342,7 @@ test_that("MongoDB showDatabases",{
 test_that("MongoDB showCollections",{
   skip_if_not(MongoAvailable)
   mdt <- MongoDB("testthis","test","mongodb://localhost")
+  withr::defer(mdbDrop(mdt))
   dbname <- basename(tempfile("col"))
   mdb <- MongoDB(dbname,"test","mongodb://localhost")
   withr::defer(mdbDrop(mdb))
