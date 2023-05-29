@@ -42,12 +42,12 @@ mdbFind(
 \arguments{
 \item{db}{(or MongoDB mongo) -- the database collection.}
 
-\item{query}{character -- A query string in `JSON` format.  See
-`\link{buildJQuery}`.}
+\item{query}{character -- A query string in \code{JSON} format.  See
+\verb{\link{buildJQuery}}.}
 
 \item{fields}{character -- A JSON expression describing which
 fields to extract from the selected records.  The default returns
-all fields except for the internal Mongo id field (see `\link{m_id}`.}
+all fields except for the internal Mongo id field (see \verb{\link{m_id}}.}
 
 \item{sort}{character -- A JSON field indicating how the record
 should be sorted.}
@@ -67,24 +67,23 @@ data.frame giving query results
 Finds records which match the query and returns as data frame
 }
 \details{
-The `mdbFind` function takes a collection of records and turns it
-into a `data.frame` with the columns representing the frame.  To
-process the raw JSON stream, try `\link{mdbIterate}`
+The \code{mdbFind} function takes a collection of records and turns it
+into a \code{data.frame} with the columns representing the frame.  To
+process the raw JSON stream, try \verb{\link{mdbIterate}}
 
-The `query`, `fields` and `sort` are all JSON expressions.  Note
+The \code{query}, \code{fields} and \code{sort} are all JSON expressions.  Note
 that field names shuld be quoted inside these query strings (the
 quotes are optional in the Mongo shell, but not here).  I recommend
 using single quotes for the outer expression and double quotes
 inside the JSON string.
-
-### Query
+\subsection{Query}{
 
 The mongo query is a rather rich language.  The simplest version
 restricts a field to a specific value.  For example
-'{"Species":"virginica"}' would select only virginica irises.
+\code{'{"Species":"virginica"}'} would select only virginica irises.
 There are a number of different operators which can used to specify
-the query, for examples '{"Species":{$ne:"virginica"}}' and
-'{"Species":{$in:["setosa","versicolor"]}}' both select the other
+the query, for examples \code{'{"Species":{$ne:"virginica"}}'} and
+\code{'{"Species":{$in:["setosa","versicolor"]}}'} both select the other
 iris types.
 
 The mongo operators are "$eq" -- equals, "$gt" -- greater than,
@@ -93,27 +92,30 @@ less than or equals, "$ne" -- not equal,"$nin" -- not in (argument
 is a list ('[]'),"$in" -- in (argument is a list) and "$regex" -- a
 regular expression.
 
-The function `\link{buildJQuery}` uses a more R-like syntax and
+The function \verb{\link{buildJQuery}} uses a more R-like syntax and
 converts them to JSON.  This makes it easier to build a query
 inside of R.
+}
 
-### fields
+\subsection{fields}{
 
 The fields JSON expression should be a collection of fields with a
-`true` or `false` (or 0 or 1).  Note that the "_id" field is
+\code{true} or \code{false} (or 0 or 1).  Note that the "_id" field is
 automatically included unless explicitedly excluded.  For example:
 '{"Petal.Length":1, "Petal.Width":1, "Species":1, "_id":0}' will
 select the petal length and witdth field and species field.  See
-the topic `Projection` in the Mongo manual for more details.
+the topic \code{Projection} in the Mongo manual for more details.
+}
 
-### sort
+\subsection{sort}{
 
 This is a short object which gives the name of the field to sort on
 and the direction (1 for ascending, -1 for decending).  If more
 than one sort key is given, the first one is given the highest
 priority.  The sort keys should be included in the field.  For example
 '{"Petal.Length":1}' sort in accending order according to petal
-length.  See the `sort` function in the Mongo reference manual.
+length.  See the \code{sort} function in the Mongo reference manual.
+}
 }
 \examples{
 irisdb <- MongoDB("iris",noMongo=!interactive())
@@ -124,8 +126,8 @@ mdbFind(irisdb,buildJQuery(Species="setosa"),
         sort = '{"Petal_Width":-1}', limit=10)
 }
 \seealso{
-[\link[mongolite]{mongo}] [\link{buildJQuery}]
-[\link{getOneRec}] [\link{getManyRecs}] [\link{mdbIterate}]
+\verb{\link[mongolite]\{mongo\}}, \verb{\link{buildJQuery}}
+\verb{\link{getOneRec}}, \verb{\link{getManyRecs}}, \verb{\link{mdbIterate}}
 \url{https://www.mongodb.com/docs/manual/reference/operator/query/}
 \url{https://www.mongodb.com/docs/manual/reference/command/find/}
 \url{https://www.mongodb.com/docs/manual/reference/method/db.collection.find/#std-label-find-projection}

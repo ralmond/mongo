@@ -19,10 +19,10 @@ mdbAvailable(db)
 logical value.  If false, there is no active connection and CRUD operations will be no-ops.
 }
 \description{
-Returns `FALSE` if the connection to the database is not available, so the CRUD operations (\link{mdbCRUD}).
+Returns \code{FALSE} if the connection to the database is not available, so the CRUD operations (\link{mdbCRUD}).
 will not be executed.
 }
 \note{
-When using the \code{mongolite::\link[mongolite]mongo} collection reference
+When using the \code{mongolite::\link[mongolite]{mongo}} collection reference
 operations are not skipped.
 }

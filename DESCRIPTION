@@ -23,7 +23,7 @@ Suggests:
     devtools,
     testthat (>= 3.0.0)
 Description: This is a wrapper for the jsonlite and mongolite packages which offers both an R6 object for managing the connection as well as some mechanisms for saving and restoring S4 objects to a Mongo database.
-Collate:  as.json.R MongoDB.R jqmongo.R FakeMongo.R
+Collate: as.json.R MongoDB.R jqmongo.R FakeMongo.R
 License: Artistic-2.0
 URL: https://github.com/ralmond/mongo
 Encoding: UTF-8
@@ -42,3 +42,4 @@ Support: c(
    Architectual Design and Modeling Using E-Rebuild." (\#1720533,
    Fengfeng Ke, PI)',
    'Institute of Educational Statistics Grant: "Exploring adaptive cognitive and affective learning support for next-generation STEM learning games." (#R305A170376-20, Val Shute and Russell Almond, PIs')	
+Roxygen: list(markdown = TRUE)

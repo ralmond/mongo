@@ -4,6 +4,7 @@
 \name{fake_mongo-class}
 \alias{fake_mongo-class}
 \alias{fake_mongo}
+\alias{mdbAvailable,fake_mongo-method}
 \alias{mdbAggregate,fake_mongo-method}
 \alias{mdbCount,fake_mongo-method}
 \alias{mdbDisconnect,fake_mongo-method}
@@ -25,7 +26,7 @@
 \alias{mdbUpdate,fake_mongo-method}
 \alias{showDatabases,fake_mongo-method}
 \alias{showCollections,fake_mongo-method}
-\title{A simulated `MongoDB` object for testing}
+\title{A simulated \code{MongoDB} object for testing}
 \usage{
 fake_mongo(
   collection = "test",
@@ -45,6 +46,8 @@ fake_mongo(
   databases = list(),
   collections = list()
 )
+
+\S4method{mdbAvailable}{fake_mongo}(db)
 
 \S4method{mdbAggregate}{fake_mongo}(
   db,
@@ -141,74 +144,73 @@ fake_mongo(
 
 \item{url}{character -- URI for accessing the database.}
 
-\item{verbose}{logical -- passed to `\link[mongolite]{mongo}`}
+\item{verbose}{logical -- passed to \verb{\link[mongolite]\{mongo\}}}
 
-\item{options}{ANY -- SSL options passed to `mongo` call.}
+\item{options}{ANY -- SSL options passed to \code{mongo} call.}
 
 \item{noMongo}{logical -- If true (default), no attempt is made to connect to the Mongo database.}
 
 \item{logging}{logical -- If true (default), then calls to the database will be logged.}
 
-\item{aggregate}{list -- simulated responses from [mdbAggregate()] queries.}
+\item{aggregate}{list -- simulated responses from \code{\link[=mdbAggregate]{mdbAggregate()}} queries.}
 
-\item{count}{list -- simulated responses from [mdbCount()] queries.}
+\item{count}{list -- simulated responses from \code{\link[=mdbCount]{mdbCount()}} queries.}
 
-\item{distinct}{list -- simulated responses from [mdbDistinct()] queries.}
+\item{distinct}{list -- simulated responses from \code{\link[=mdbDistinct]{mdbDistinct()}} queries.}
 
-\item{find}{list -- simulated responses from [mdbFind()] queries.}
+\item{find}{list -- simulated responses from \code{\link[=mdbFind]{mdbFind()}} queries.}
 
-\item{iterate}{list -- simulated responses from [mdbIterate()] queries.}
+\item{iterate}{list -- simulated responses from \code{\link[=mdbIterate]{mdbIterate()}} queries.}
 
-\item{mapreduce}{list -- simulated responses from [mdbMapreduce()] queries.}
+\item{mapreduce}{list -- simulated responses from \code{\link[=mdbMapreduce]{mdbMapreduce()}} queries.}
 
-\item{run}{list -- simulated responses from [mdbRun()] queries.}
+\item{run}{list -- simulated responses from \code{\link[=mdbRun]{mdbRun()}} queries.}
 
-\item{databases}{list -- simulated responses from [showDatabases()] queries.}
+\item{databases}{list -- simulated responses from \code{\link[=showDatabases]{showDatabases()}} queries.}
 
-\item{collections}{list -- simulated responses from [showCollections()] queries.}
+\item{collections}{list -- simulated responses from \code{\link[=showCollections]{showCollections()}} queries.}
 
 \item{pipeline, handler, pagesize, query, key, fields, sort, skip, limit, map, reduce, command, simplify, uri, dbname, con, bson, add, remove, data, stop_on_error, just_one, mdb, name, update, upsert, filters, multiple, ...}{--
-arguments to the generic functions which are ignored in the `fake_mongo` methods.}
+arguments to the generic functions which are ignored in the \code{fake_mongo} methods.}
 }
 \value{
-An object of class `fake_mongo`
+An object of class \code{fake_mongo}
 
 An object of type `\linkS4class{fake_mongo}
 }
 \description{
 This class simulates the behavior of a mongo collection providing a set of scripted responses to queries.  In particular,
-[mdbAggregate()], [mdbCount()], [mdbDistinct()], [mdbFind()], [mdbIterate()], [mdbMapreduce()],
-[mdbRun()], [showCollections()] and [showDatabases()] methods are overridden to return prespecified
+\code{\link[=mdbAggregate]{mdbAggregate()}}, \code{\link[=mdbCount]{mdbCount()}}, \code{\link[=mdbDistinct]{mdbDistinct()}}, \code{\link[=mdbFind]{mdbFind()}}, \code{\link[=mdbIterate]{mdbIterate()}}, \code{\link[=mdbMapreduce]{mdbMapreduce()}},
+\code{\link[=mdbRun]{mdbRun()}}, \code{\link[=showCollections]{showCollections()}} and \code{\link[=showDatabases]{showDatabases()}} methods are overridden to return prespecified
 results in order.  Usually, no connection is made to an actual database, so this can be used to run tests
 in environments where it is unknown whether or not an appropriate mongo database is available.
 }
 \details{
-Internally the `fake_mongo` class has a list of iterators named "aggregate", "count", "distinct", "find",
+Internally the \code{fake_mongo} class has a list of iterators named "aggregate", "count", "distinct", "find",
 "iterate", "mapreduce", "run", "databases", and "collections".  The corresponding methods will return the next entry
 in the iterator (if it exists) or else will call the parent method to get the default return value (varies with generic
 function).  Usually, no connection to a mongo database is made.
 
+The Queue names are given in the following table.
+\tabular{rr}{
+\strong{Method} \tab \strong{Queue Name} \cr
+\code{\link{mdbAggregate}} \tab "aggregate" \cr
+\code{\link{mdbCount}} \tab "count" \cr
+\code{\link{mdbDistinct}} \tab "distinct" \cr
+\code{\link{mdbFind}} \tab "find" \cr
+\code{\link{mdbIterate}} \tab "iterate" \cr
+\code{\link{mdbMapreduce}} \tab "mapreduce" \cr
+\code{\link{mdbRun}} \tab "run" \cr
+\code{\link{showCollections}} \tab "collections" \cr
+\code{\link{showDatabases}} \tab "databases" \cr
+}
 
- The Queue names are given in the following table.
-  \tabular{rr}{
-   \strong{Method} \tab \strong{Queue Name} \cr
-   \code{\link{mdbAggregate}} \tab "aggregate" \cr
-   \code{\link{mdbCount}} \tab "count" \cr
-   \code{\link{mdbDistinct}} \tab "distinct" \cr
-   \code{\link{mdbFind}} \tab "find" \cr
-   \code{\link{mdbIterate}} \tab "iterate" \cr
-   \code{\link{mdbMapreduce}} \tab "mapreduce" \cr
-   \code{\link{mdbRun}} \tab "run" \cr
-   \code{\link{showCollections}} \tab "collections" \cr
-   \code{\link{showDatabases}} \tab "databases" \cr
- }
+These names are used as \code{which} arguments to the \verb{$que(which)} and \verb{$resetQueue(which)}
+methods as well as for initializing the queue using the \code{fake_mongo} constructor.
 
-These names are used as `which` arguments to the `$que(which)` and `$resetQueue(which)`
-methods as well as for initializing the queue using the `fake_mongo` constructor.
-
-If logging is turned on (either by setting `logging=TRUE` in the constructor, or by calling
-`$logging(TRUE)`, then each `mdbXXX` method will log the call to the `log` collection.
-The `$getLog()` and `$lastLog()` methods access the queue, and `$resetQueue()` resets it.
+If logging is turned on (either by setting \code{logging=TRUE} in the constructor, or by calling
+\verb{$logging(TRUE)}, then each \code{mdbXXX} method will log the call to the \code{log} collection.
+The \verb{$getLog()} and \verb{$lastLog()} methods access the queue, and \verb{$resetQueue()} resets it.
 }
 \section{Functions}{
 \itemize{
@@ -218,24 +220,61 @@ The `$getLog()` and `$lastLog()` methods access the queue, and `$resetQueue()` r
 \section{Fields}{
 
 \describe{
-\item{\code{queues}}{a named list of `\linkS4class{iterator}` objects which provide the simulated responses.}
+\item{\code{queues}}{a named list of
+\verb{\linkS4class{iterator}} objects which provide the
+simulated responses.}
 
 \item{\code{log}}{a list of database calls made}
 
-\item{\code{logp}}{logical If `TRUE` then method class will be logged.
-
-# Methods
-* `$que(which)` -- Returns the internal iterator associated with the operation `which`.
-* `$resetQue(which,newElements)` -- Calls `$reset()` method on `$que(which)`.
-* `$resetAll()` -- resets all queues
-* `$logging(newState)` -- Checks whether or not logging is currently being done.  If `newState` is
-supplied, the logging is turned on or off.
-* `$logCall(call)`  -- if logging is turned on, `call` is added to the log.
-* `$getLog(newestFirst=TRUE)` -- returns the entire log.  If argument is `FALSE` order is reversed.
-* `$lastLog()` -- returns the most recently added element in the log.
-* `$resetLog()` -- clears the log.}
+\item{\code{logp}}{logical If \code{TRUE} then method class
+will be logged.}
 }}
 
+
+\section{Class-Based Methods}{
+
+\itemize{
+\item \verb{$initialize(...)} -- See \code{fake_mongo} function for arguments.
+\item \verb{$que(which)} -- Returns an individual response queue as an
+\verb{\linkS4class{iterator}}  The \code{which} argument should be one of the
+names in the table in the Details session.
+\item \verb{$resetQueue(which, newElements=NULL)} -- Calls the \verb{$reset()} method on
+\verb{\linkS4class{iterator}} associated with operation \code{which}.  If
+\code{newElements} is supplied, the elements or the iterator are replaced.
+Note that if \code{which="iterate"}, then the queue is an iterator which
+returns iterators.  The \verb{$reset()} method is called on all of the
+elements of the queue as well.
+\item \verb{$resetAll()} -- Resets all Queues.
+\item \verb{$logging(newState)} Checks or sets the logging state.  If the
+argument is supplied, this sets the state.
+\item \code{logCall(call)} -- Logs a database CRUD operation.
+The \code{call} argument is a named list.  The first element, named \code{op}
+is the database operation (the name of the call minus the \code{mdb} prefix).
+The remaining arguments are the values of the arguments in the CRUD call.
+\item getLog(newestFirst=TRUE) -- Fetches the entire log.  Log is
+stored with the newest call first (reverse chronological order), so this
+is the default order.
+\item \verb{$lastLog()} -- Returns the most recently added element in the
+log.
+\item \verb{$resetLog()} -- Clears the call log.
+}
+}
+
+\section{Methods}{
+
+
+This class overrides all of the normal \link{CRUD} (\code{mdbXXX})
+methods.
+
+For all methods, the internal \verb{$logCall()} method is called giving
+the details of the call.
+
+For the methods which correspond to a queue, the next element in
+the corresponding queue will be returned.
+
+This allows faking the database connection to test functions which
+interact with the mongo database.
+}
 
 \examples{
 showClass("fake_mongo")

@@ -2,34 +2,37 @@
 % Please edit documentation in R/as.json.R
 \name{codeClass}
 \alias{codeClass}
+\alias{decodeClass}
 \title{Adds/removes  package information to class descriptions}
 \usage{
 codeClass(class)
+
+decodeClass(class)
 }
 \arguments{
-\item{class}{character Class identifiers.  For `codeClass()` these might have the "package"
-attribute set.  For `decodeClass()` the package attribute is represented by the prefix "package::".}
+\item{class}{character Class identifiers.  For \code{codeClass()} these might have the "package"
+attribute set.  For \code{decodeClass()} the package attribute is represented by the prefix "package::".}
 }
 \value{
-The function `codeClass()` returns a character vector with "package" attributes changed to
-"package::" prefixes.  The function `decodeClass()` returns a character vector with "package::"
+The function \code{codeClass()} returns a character vector with "package" attributes changed to
+"package::" prefixes.  The function \code{decodeClass()} returns a character vector with "package::"
 prefixes removed and "package" attributes set.
 }
 \description{
 If the class has a "package" attribute, then changes the descriptor to a form
 "package::classname", e.g., the \code{\linkS4class{MongoRec}} class, which lives in the
-"mongo" package becomes `mongo::MongoRec`.  The function `decodeClass()` reverses this.
+"mongo" package becomes \code{mongo::MongoRec}.  The function \code{decodeClass()} reverses this.
 }
 \note{
-The `codeClass()` function applies [unboxer()] to mark single class names as singletons.
-The `decodeClass()` function applies [ununboxer()] to remove the mark if needed.  Also,
-if `class` is a list (happens if it was not quoted with [unboxer()] when saved to JSON),
-`decodeClass()` will try to coerce it into a character vector.
+The \code{codeClass()} function applies \code{\link[=unboxer]{unboxer()}} to mark single class names as singletons.
+The \code{decodeClass()} function applies \code{\link[=ununboxer]{ununboxer()}} to remove the mark if needed.  Also,
+if \code{class} is a list (happens if it was not quoted with \code{\link[=unboxer]{unboxer()}} when saved to JSON),
+\code{decodeClass()} will try to coerce it into a character vector.
 }
 \examples{
-codeClass(MongoRec())
-codeClass(matrix(1:4,2,2))
-decodeClass(codeClass(MongoRec())
-decodeClass(codeClass(matrix(1:4,2,2)))
+codeClass(class(MongoRec()))
+codeClass(class(matrix(1:4,2,2)))
+decodeClass(codeClass(class(MongoRec())))
+decodeClass(codeClass(class(matrix(1:4,2,2))))
 
 }

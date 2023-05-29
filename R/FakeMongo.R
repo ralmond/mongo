@@ -1,88 +1,104 @@
-
 #' An object which iterates over a collection
 #'
-#' @field elements list -- The object to return
-#' @field position integer -- a pointer to the last returned object
+#' An `iterator` loops through a collection using the `$hasNext()` and `$nextElement()` methods.
+#' This class also supports the `$one()` and `$batch()` methods to mimic the iterator returned
+#' by the `\link[mongolite]{mongo}()$iterate()` method.
 #'
-#' # Methods
+#' # Class-based Methods
 #'
-#' * `$hasNext()` -- logical; returns `TRUE` if collection has been exhausted.
-#' * `$nextElement(warn=TRUE)` -- returns the next element of the collection.  If there are no unused elements left,
-#'  the method issues a warning (if `warn` is `TRUE`) and returns `NULL`
-#' * `$one()` -- A synonym for `$nextElement(warn=FALSE)`.  For compatibility with the internal iterator class
-#'  returned by `\link{mdbIterate}.
-#' * `$batch(count)` -- Returns the next `count` elements in the collection (updating the internal pointer by
-#'   `count`.
-#' * `$reset(newElements=list())` -- Resets the pointer back to the beginning of the element collection.
-#' If the `newElements` argument is not missing, it also replaces the elements collection with the value of
-#' `newElements`.
+#' * `$initialize(elements=list(),...)` Constructor
+#' * `$hasNext()` -- Logical value.  Checks whether there are unseen
+#' elements in the collection.  Position is not advanced.
+#' * '$nextElement(warn=TRUE)` Returns the next item in the collection
+#' and advances the position.  If no items remain, then
+#' `NULL` is returned and a warning is issued if `warn` is `TRUE`.
+#' * `$one()` Returns the next item in the collection.  Designed
+#' to mimic the return from the `\link[mongolite]{mongo}$iterate()`
+#' function. The next object, or `NULL` (without a warning) if the
+#' collection is empty.
+#' * `$batch(count)`  Fetechs `count` elements as a list, advancing
+#' the position by the argument.  Issues a warning if there
+#' are not `count` elements left in the collection.
+#' Advances the position by `count`.
+#' * `$reset()` Resets the position back to the beginning.  If an
+#' argument is supplied, it also replaces the `elements`.
 #'
-#' @seealso `\linkS4class{fake_mongo}`, [mdbIterate()]
 #'
 #' @note
 #'
 #' This is a utility class that serves two purposes.
 #' (1) It implements a result queue for the `linkS4class{fake_mongo}` class.
 #' (2) it mimics the iterator returned by the `mdbIterate()`
-#' generic function, and so can be used in the result queue for the `mdbIterate-fake_mongo` method.
+#' generic function, and so can be used in the result queue for the
+#' `mdbIterate-fake_mongo` method.
 #'
-#' Unlike the internal iterator class from the `mongolite`, this one has a `$hasNext()` method which is
-#' part of the general iterator recipe.  The `$one()` and `$batch()` methods should be compatible with the
-#' internal `mongolite` iterator, can so it can be used as drop in replacement.
+#' Unlike the internal iterator class from the `mongolite`, this one
+#' has a `$hasNext()` method which is  part of the general iterator
+#' recipe.  The `$one()` and `$batch()` methods should be compatible
+#' with the internal `mongolite` iterator, can so it can be used as
+#' drop in replacement.
 #'
 #' @return An object of class iterator.
 #' @exportClass iterator
-#' @export iterator
-#' @aliases iterator
+#' @seealso [mongo::mdbIterate()], `\linkS4class{fake_mongo}`
 #' @examples
 #' iter <- iterator(as.list(1:5))
 #' while (iter$hasNext())
 #'   print(iter$nextElement())
 #'
 #'
-setRefClass("iterator",fields=c(elements="list",position="integer"),
-              methods=list(
-                  initialize=function(elements=list(),...) {
-                    callSuper(elements=elements,position=0L,...)
-                  },
-                  hasNext = function() {
-                    position < length(elements)
-                  },
-                  nextElement = function(warn=TRUE) {
-                    position <<- position +1L
-                    if (position > length(elements)) {
-                      if (warn) {
-                        warning("No elements left in interator")
-                      }
-                      return(NULL)
+setRefClass("iterator",
+            fields=c(
+                #' @field elements list -- The objects to return
+                elements="list",
+                #' @field position integer -- a pointer to the last
+                #' returned object
+                position="integer"),
+            methods=list(
+                initialize=function(elements=list(),...) {
+                  callSuper(elements=elements,position=0L,...)
+                },
+                hasNext = function() {
+                  position < length(elements)
+                },
+                nextElement = function(warn=TRUE) {
+                  position <<- position +1L
+                  if (position > length(elements)) {
+                    if (warn) {
+                      warning("No elements left in interator")
                     }
-                    return(elements[[position]])
-                  },
-                  one = function() {
-                    nextElement(FALSE)
-                  },
-                  reset = function(newElements=list()) {
-                    if (!missing(newElements)) {
-                      elements <<- newElements
-                    }
-                    position <<- 0L
-                    .self ## Needs to return self so we can use with lapply
-                  },
-                  batch = function(count) {
-                    count <- as.integer(count)
-                    max <- position+count
-                    if (max > length(elements)) {
-                      warning(sprintf("%d elements requested, but only %d left.",
-                                      count,length(elements)-position))
-                      max <- length(elements)
-                    }
-                    if (length(elements) <= position) return(NULL)
-                    res <- elements[(position+1):max]
-                    position <<- position + count
-                    return(res)
-                  }))
+                    return(NULL)
+                  }
+                  return(elements[[position]])
+                },
+                one = function() {
+                  nextElement(FALSE)
+                },
+                reset = function(newElements=list()) {
+                  if (!missing(newElements)) {
+                    elements <<- newElements
+                  }
+                  position <<- 0L
+                  .self ## Needs to return self so we can use with lapply
+                },
+                batch = function(count) {
+                  count <- as.integer(count)
+                  max <- position+count
+                  if (max > length(elements)) {
+                    warning(sprintf("%d elements requested, but only %d left.",
+                                    count,length(elements)-position))
+                    max <- length(elements)
+                  }
+                  if (length(elements) <= position) return(NULL)
+                  res <- elements[(position+1):max]
+                  position <<- position + count
+                  return(res)
+                }))
 
-
+#'@rdname iterator-class
+#'@export iterator
+#'@param elements A list of elements for the iterator to return.
+#'@returns The newly created iterator.
 iterator <- function(elements=list()) {
   new("iterator",elements=elements)
 }
@@ -96,22 +112,67 @@ iterator <- function(elements=list()) {
 #' results in order.  Usually, no connection is made to an actual database, so this can be used to run tests
 #' in environments where it is unknown whether or not an appropriate mongo database is available.
 #'
+#' @param collection character -- name of the referenced collection
+#' @param db character -- name of the referenced database
+#' @param url character -- URI for accessing the database.
+#' @param verbose logical -- passed to `\link[mongolite]{mongo}`
+#' @param options ANY -- SSL options passed to `mongo` call.
+#' @param noMongo logical -- If true (default), no attempt is made to connect to the Mongo database.
+#' @param logging logical -- If true (default), then calls to the database will be logged.
+#' @param aggregate list -- simulated responses from [mdbAggregate()] queries.
+#' @param count list -- simulated responses from [mdbCount()] queries.
+#' @param distinct list -- simulated responses from [mdbDistinct()] queries.
+#' @param find list -- simulated responses from [mdbFind()] queries.
+#' @param iterate list -- simulated responses from [mdbIterate()] queries.
+#' @param mapreduce list -- simulated responses from [mdbMapreduce()] queries.
+#' @param run list -- simulated responses from [mdbRun()] queries.
+#' @param databases list -- simulated responses from [showDatabases()] queries.
+#' @param collections list -- simulated responses from [showCollections()] queries.
+#' @param pipeline,handler,pagesize,query,key,fields,sort,skip,limit,map,reduce,command,simplify,uri,dbname,con,bson,add,remove,data,stop_on_error,just_one,mdb,name,update,upsert,filters,multiple,... --
+#'   arguments to the generic functions which are ignored in the `fake_mongo` methods.
 #' @name fake_mongo-class
 #' @aliases fake_mongo
-#' @field queues a named list of `\linkS4class{iterator}` objects which provide the simulated responses.
-#' @field log a list of database calls made
-#' @field logp logical If `TRUE` then method class will be logged.
 #'
-#' # Methods
-#' * `$que(which)` -- Returns the internal iterator associated with the operation `which`.
-#' * `$resetQue(which,newElements)` -- Calls `$reset()` method on `$que(which)`.
-#' * `$resetAll()` -- resets all queues
-#' * `$logging(newState)` -- Checks whether or not logging is currently being done.  If `newState` is
-#' supplied, the logging is turned on or off.
-#' * `$logCall(call)`  -- if logging is turned on, `call` is added to the log.
-#' * `$getLog(newestFirst=TRUE)` -- returns the entire log.  If argument is `FALSE` order is reversed.
-#' * `$lastLog()` -- returns the most recently added element in the log.
-#' * `$resetLog()` -- clears the log.
+#' @section Class-Based Methods:
+#'
+#' * `$initialize(...)` -- See `fake_mongo` function for arguments.
+#' * `$que(which)` -- Returns an individual response queue as an
+#' `\linkS4class{iterator}`  The `which` argument should be one of the
+#' names in the table in the Details session.
+#' * `$resetQueue(which, newElements=NULL)` -- Calls the `$reset()` method on
+#' `\linkS4class{iterator}` associated with operation `which`.  If
+#' `newElements` is supplied, the elements or the iterator are replaced.
+#' Note that if `which="iterate"`, then the queue is an iterator which
+#' returns iterators.  The `$reset()` method is called on all of the
+#' elements of the queue as well.
+#' * `$resetAll()` -- Resets all Queues.
+#' * `$logging(newState)` Checks or sets the logging state.  If the
+#' argument is supplied, this sets the state.
+#' * `logCall(call)` -- Logs a database CRUD operation.
+#' The `call` argument is a named list.  The first element, named `op`
+#' is the database operation (the name of the call minus the `mdb` prefix).
+#' The remaining arguments are the values of the arguments in the CRUD call.
+#' * getLog(newestFirst=TRUE) -- Fetches the entire log.  Log is
+#' stored with the newest call first (reverse chronological order), so this
+#' is the default order.
+#' * `$lastLog()` -- Returns the most recently added element in the
+#' log.
+#' * `$resetLog()` -- Clears the call log.
+#'
+#'
+#' @section Methods:
+#'
+#' This class overrides all of the normal \link{CRUD} (`mdbXXX`)
+#' methods.
+#'
+#' For all methods, the internal `$logCall()` method is called giving
+#' the details of the call.
+#'
+#' For the methods which correspond to a queue, the next element in
+#' the corresponding queue will be returned.
+#'
+#' This allows faking the database connection to test functions which
+#' interact with the mongo database.
 #'
 #' @details
 #'
@@ -149,7 +210,16 @@ iterator <- function(elements=list()) {
 #' @examples
 #' showClass("fake_mongo")
 setRefClass("fake_mongo",
-              fields=c(queues="list",log="list",logp="logical"),
+            fields=c(
+                #' @field queues a named list of
+                #' `\linkS4class{iterator}` objects which provide the
+                #'simulated responses.
+                queues="list",
+                #' @field log a list of database calls made
+                log="list",
+                #' @field logp logical If `TRUE` then method class
+                #' will be logged.
+                logp="logical"),
               contains = "MongoDB",
               methods=list(
                   initialize= function(collection="test",
@@ -228,24 +298,6 @@ setRefClass("fake_mongo",
 
 #' @describeIn fake_mongo-class Constructor
 #'
-#' @param collection character -- name of the referenced collection
-#' @param db character -- name of the referenced database
-#' @param url character -- URI for accessing the database.
-#' @param verbose logical -- passed to `\link[mongolite]{mongo}`
-#' @param options ANY -- SSL options passed to `mongo` call.
-#' @param noMongo logical -- If true (default), no attempt is made to connect to the Mongo database.
-#' @param logging logical -- If true (default), then calls to the database will be logged.
-#' @param aggregate list -- simulated responses from [mdbAggregate()] queries.
-#' @param count list -- simulated responses from [mdbCount()] queries.
-#' @param distinct list -- simulated responses from [mdbDistinct()] queries.
-#' @param find list -- simulated responses from [mdbFind()] queries.
-#' @param iterate list -- simulated responses from [mdbIterate()] queries.
-#' @param mapreduce list -- simulated responses from [mdbMapreduce()] queries.
-#' @param run list -- simulated responses from [mdbRun()] queries.
-#' @param databases list -- simulated responses from [showDatabases()] queries.
-#' @param collections list -- simulated responses from [showCollections()] queries.
-#' @param pipeline,handler,pagesize,query,key,fields,sort,skip,limit,map,reduce,command,simplify,uri,dbname,con,bson,add,remove,data,stop_on_error,just_one,mdb,name,update,upsert,filters,multiple,... --
-#'   arguments to the generic functions which are ignored in the `fake_mongo` methods.
 #' @return An object of type `\linkS4class{fake_mongo}
 #' @export fake_mongo
 #'
@@ -268,6 +320,10 @@ function (collection = "test", db = "test", url = "mongodb://localhost",
        find.q=find, iterate.q=iterate, mapreduce.q=mapreduce,
        run.q=run, databases.q=databases, collections.q=collections)
 }
+
+#' @rdname fake_mongo-class
+setMethod("mdbAvailable","fake_mongo",function(db) TRUE)
+
 
 #' @rdname fake_mongo-class
 setMethod("mdbAggregate","fake_mongo",

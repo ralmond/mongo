@@ -37,7 +37,7 @@ showCollections(
 }
 \arguments{
 \item{db}{(or MongoDB mongo NULL) -- Connection to target database.
-If `NULL` a new connection is made using the specified information.}
+If \code{NULL} a new connection is made using the specified information.}
 
 \item{dbname}{character -- name for new collection}
 
@@ -53,8 +53,8 @@ Shows collections in the current database.
 }
 \details{
 Shows all of the collections which are in the referenced database.
-If the `db` argument is a `MongoDB` or `mongolite::mongo` object,
-the current database is used.  If `db` is `NULL`, then a new
+If the \code{db} argument is a \code{MongoDB} or \code{mongolite::mongo} object,
+the current database is used.  If \code{db} is \code{NULL}, then a new
 connection is created with the information.
 }
 \examples{

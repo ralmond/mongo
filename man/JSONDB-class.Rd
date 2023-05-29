@@ -4,76 +4,49 @@
 \name{JSONDB-class}
 \alias{JSONDB-class}
 \alias{mdbCRUD}
-\alias{The}
 \alias{CRUD}
-\alias{(Create,}
-\alias{Read,}
-\alias{Update}
-\alias{and}
-\alias{Delete)}
-\alias{are}
-\alias{the}
-\alias{basic}
-\alias{set}
-\alias{of}
-\alias{operators}
-\alias{for}
-\alias{manipulating}
-\alias{a}
-\alias{database.}
-\alias{`mongo`}
-\alias{package}
-\alias{defines}
-\alias{number}
-\alias{(mostly}
-\alias{named}
-\alias{`mdbXXX`)}
-\alias{which}
-\alias{calls}
-\alias{corresponding}
-\alias{operations.}
-\alias{`JSONDB`}
-\alias{class}
-\alias{is}
-\alias{intended}
-\alias{any}
-\alias{that}
-\alias{supports}
-\alias{these}
 \title{Class which supports the mdbCRUD methods.}
 \description{
 Class which supports the mdbCRUD methods.
 }
 \details{
+The CRUD (Create, Read, Update and Delete) are the basic set of
+operators for manipulating a database.  The \code{mongo} package defines
+a number of operators (mostly named \code{mdbXXX}) which calls the
+corresponding CRUD operations.  The \code{JSONDB} class is intended for
+any class that supports these operations.
+
 The following operations are supported:
-* [mdbAvailable()] -- Returns logical value.  If false, CRUD operations
+\itemize{
+\item \code{\link[=mdbAvailable]{mdbAvailable()}} -- Returns logical value.  If false, CRUD operations
 will basically be no-ops.
-* [mdbAggregate()] -- Runs an aggregation pipeline
-* [mdbCount()] -- Counts records matching query
-* [mbdDisconnect()] -- Drops connection to database (will be
+\item \code{\link[=mdbAggregate]{mdbAggregate()}} -- Runs an aggregation pipeline
+\item \code{\link[=mdbCount]{mdbCount()}} -- Counts records matching query
+\item \code{\link[=mdbDisconnect]{mdbDisconnect()}} -- Drops connection to database (will be
 reconnected on next operation).
-* [mdbDistinct()] -- Lists unique values of a field.
-* [mdbDrop()] -- Drops the collection from the database.  This is a
+\item \code{\link[=mdbDistinct]{mdbDistinct()}} -- Lists unique values of a field.
+\item \code{\link[=mdbDrop]{mdbDrop()}} -- Drops the collection from the database.  This is a
 fast way to clear a database.
-* [mdbImport()],[mdbExport()] -- Imports/Exports documents
+\item \code{\link[=mdbImport]{mdbImport()}},\code{\link[=mdbExport]{mdbExport()}} -- Imports/Exports documents
 into/from a collection from a file (or connection).
-* [mdbFind()] -- Finds documents matching query and returns result
-as a `data.frame`.
-* [mdbIndex()] -- Adds or removes an index from a collection.
-* [mdbInfo()] -- Returns info about a collection.
-* [mdbInsert()] -- Adds one or more documents into a collections.
-Works with both `data.frame` (one document per row) and JSON
+\item \code{\link[=mdbFind]{mdbFind()}} -- Finds documents matching query and returns result
+as a \code{data.frame}.
+\item \code{\link[=mdbIndex]{mdbIndex()}} -- Adds or removes an index from a collection.
+\item \code{\link[=mdbInfo]{mdbInfo()}} -- Returns info about a collection.
+\item \code{\link[=mdbInsert]{mdbInsert()}} -- Adds one or more documents into a collections.
+Works with both \code{data.frame} (one document per row) and JSON
 character vectors (one document per element).
-* [mdbIterate()]/[mdbFindL()] -- Finds documents matching query and returns
+\item \code{\link[=mdbIterate]{mdbIterate()}}/\code{\link[=mdbFindL]{mdbFindL()}} -- Finds documents matching query and returns
 these as an iterator/list.
-* [mdbMapreduce()] -- Executes a mapreduce operation using
+\item \code{\link[=mdbMapreduce]{mdbMapreduce()}} -- Executes a mapreduce operation using
 javascript map and reduce oerations.
-* [mdbRemove()] -- Removes matching documents from a collection.
-* [mdbRename()] -- Renames a collection.
-* [mdbReplace()]/[mdbUpsert()] -- Replaces a document in a
+\item \code{\link[=mdbRemove]{mdbRemove()}} -- Removes matching documents from a collection.
+\item \code{\link[=mdbRename]{mdbRename()}} -- Renames a collection.
+\item \code{\link[=mdbReplace]{mdbReplace()}}/\code{\link[=mdbUpsert]{mdbUpsert()}} -- Replaces a document in a
 collection.
-* [mdbRun()] -- Runs a Mongo command.
-* [mdbUpdate()] -- Modifies records in a database.
-* [showDatabases()] -- Lists available databases.
-* [showCollections()] -- Lists collections in a database.
+\item \code{\link[=mdbRun]{mdbRun()}} -- Runs a Mongo command.
+\item \code{\link[=mdbUpdate]{mdbUpdate()}} -- Modifies records in a database.
+\item \code{\link[=showDatabases]{showDatabases()}} -- Lists available databases.
+\item \code{\link[=showCollections]{showCollections()}} -- Lists collections in a database.
+}
 }

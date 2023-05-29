@@ -26,7 +26,7 @@ showDatabases(
 }
 \arguments{
 \item{db}{(or MongoDB NULL) -- Database reference. (Note:
-`mongolite::mongo` cannot be used.)}
+\code{mongolite::mongo} cannot be used.)}
 
 \item{uri}{character -- URI for database connections.}
 
@@ -42,18 +42,18 @@ Lists Databases
 This function lists the names of the databases which are accessible
 for the current user.
 
-This function needs to make a new connection to the `admin`
-database.  If a MongoDB object is supplied, then the `uri` and
-`options` are taken from it.  If the `db` argument is NULL, a new
+This function needs to make a new connection to the \code{admin}
+database.  If a MongoDB object is supplied, then the \code{uri} and
+\code{options} are taken from it.  If the \code{db} argument is NULL, a new
 connection is made.
 
 Note that there is currently no documented way of retrieving the
-`url` and `ssl_options` from a `mongolite::mongo` object.
+\code{url} and \code{ssl_options} from a \code{mongolite::mongo} object.
 }
 \examples{
 irisdb <- MongoDB("iris",noMongo=!interactive())
 showDatabases(irisdb)
 }
 \seealso{
-[\link[mongolite]{mongo}] [\link{mdbRun}]
+\verb{\link[mongolite]\{mongo\}}, \verb{\link{mdbRun}}
 }

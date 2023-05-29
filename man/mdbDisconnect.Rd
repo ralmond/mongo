@@ -24,7 +24,7 @@ status message
 Disconnects connection to database.
 }
 \details{
-While this closes the connection, the `MongoDB` object retains the
+While this closes the connection, the \code{MongoDB} object retains the
 information needed to re-open it.  It will be reopened on the next
 call.
 }

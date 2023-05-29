@@ -16,16 +16,16 @@ mdbCount(db, query = "{}")
 \item{db}{MongoDB or mongo -- Reference to the collection}
 
 \item{query}{character -- JSON expression giving the query. See
-`\link{buildJQuery}`.}
+\verb{\link{buildJQuery}}.}
 }
 \value{
-integer The number of records found (or `NA` if `noMongo = TRUE`)
+integer The number of records found (or \code{NA} if \code{noMongo = TRUE})
 }
 \description{
 Counts the number of records matching Query.
 }
 \details{
-The `query` argument is a partial match for the records (in JSON format) which is
+The \code{query} argument is a partial match for the records (in JSON format) which is
 essentially a partial match for the object.
 }
 \examples{
@@ -37,6 +37,6 @@ mdbCount(irisdb,'{"Species":"setosa"}')
 mdbCount(irisdb,buildJQuery(Sepal.Width=c(lt=3),Petal.Width=c(gt=.3,lt=1.8)))
 }
 \seealso{
-[\link[mongolite]{mongo}] [\link{buildJQuery}]
+\verb{\link[mongolite]\{mongo\}}, \verb{\link{buildJQuery}}
 \url{https://www.mongodb.com/docs/manual/reference/command/count/}
 }

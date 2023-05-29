@@ -16,7 +16,7 @@ mdbInfo(db)
 \item{db}{(or MongoDB mongo) The collection of interest.}
 }
 \value{
-Object of class `miniprint` giving information about the collection.
+Object of class \code{miniprint} giving information about the collection.
 }
 \description{
 Get Information about the collection

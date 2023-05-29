@@ -20,7 +20,7 @@ parse.json(encoded, builder = buildObject)
 }
 \arguments{
 \item{class}{-- A character string defining the class of the output object.
-If the list has an element named `class`, that will be used.}
+If the list has an element named \code{class}, that will be used.}
 
 \item{rec}{-- A list which is the output of \code{\link[jsonlite]{fromJSON}}}
 
@@ -29,10 +29,10 @@ If the list has an element named `class`, that will be used.}
 \item{builder}{-- A function which will construct an object from a list of fields values.}
 }
 \value{
-An S4 object of type `class`
+An S4 object of type \code{class}
 }
 \description{
-The `parse.json` function uses the
+The \code{parse.json} function uses the
 \code{\link[jsonlite]{fromJSON}} function to turn the JSON into a list, which
 is processed using the function \code{parse.jlist}
 to massage the elements, and then passes it to the \code{new} function
@@ -48,17 +48,16 @@ function \code{\link{unparseData}} undoes the effect of \code{parseData}.
 \itemize{
 \item \code{parse.jlist()}: This is the inner function for processing
 the slots prior to object creation.  Generally, this is the method
-that needs to be specialized.  See the `vignette("JSON for S4
-Objects")`.
+that needs to be specialized.  See the \code{vignette("JSON for S4 Objects")}.
 
 \item \code{parse.jlist(class = ANY, rec = list)}: Base case for callNextMethod; just returns
 the slot list.
 
 \item \code{buildObject()}: This method takes the jlist, cleans it with an appropriate
-`parse.jlist` method and then tries to generate an object based on the class.
+\code{parse.jlist} method and then tries to generate an object based on the class.
 
-\item \code{parse.jlist(class = MongoRec, rec = list)}: Makes sure the `_id` field corresponds to
-conventions, and inserts `NA` if it is missing.
+\item \code{parse.jlist(class = MongoRec, rec = list)}: Makes sure the \verb{_id} field corresponds to
+conventions, and inserts \code{NA} if it is missing.
 
 }}
 \examples{

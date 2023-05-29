@@ -48,42 +48,43 @@ gets updated.  (See the "Mongolite User Manual").}
 \item{upsert}{logical -- If true and the query returns no results,
 then insert the document instead.}
 
-\item{multiple}{logical -- If true, all documents matching `query`
+\item{multiple}{logical -- If true, all documents matching \code{query}
 are affected; if false, only the first one.}
 }
 \value{
 A list with the returned object.
 }
 \description{
-The `query` field identifies a number of documents.  The `update`
+The \code{query} field identifies a number of documents.  The \code{update}
 is a set of instructions for changing the documents.  The
-`\link{mdbReplace}` function replaces the document instead of
+\verb{\link{mdbReplace}} function replaces the document instead of
 modifying it.
 }
 \details{
-### Queries
+\subsection{Queries}{
 
-The rules here match those for `\link{mdbFind}`.
+The rules here match those for \verb{\link{mdbFind}}.
+}
 
-### Update Documents
+\subsection{Update Documents}{
 
 This is a special document which describes how to modify the
 document.  There are a number of commands described in the Mongo
-documentation, of which the two most useful are `$set` and
-`$unset`.
+documentation, of which the two most useful are \verb{$set} and
+\verb{$unset}.
 
-The `$set` command takes as argument a JSON object giving field
+The \verb{$set} command takes as argument a JSON object giving field
 value pairs.  If the field exists it value will be changed, if it
-doesn't exist a new field will be created.  For example `'{"$set":
-{"processed":false}}'` will set the `processed` field to false,
+doesn't exist a new field will be created.  For example \code{'{"$set": {"processed":false}}'} will set the \code{processed} field to false,
 additing it if necessary.
 
-The `$unset` command removes a field from a document.  For example,
-`'{"$unset":{"processed":0}}'` removes the process field.  The
+The \verb{$unset} command removes a field from a document.  For example,
+\code{'{"$unset":{"processed":0}}'} removes the process field.  The
 value after the field name is ignored.
 
 For multiple complex changes, consider using
 `\link{mdbAggregate} for more complex changes.
+}
 }
 \examples{
  mdb <- MongoDB("testthis","test","mongodb://localhost",noMongo=!interactive())
@@ -95,6 +96,6 @@ mdbUpdate(mdb,'{"name":"Fred"}', '{"$set":{"gender":"F"}}')
 mdbFind(mdb)
 }
 \seealso{
-[\link[mongolite]{mongo}] [\link{mdbReplace}]
-[\link{mdbFind}] [\link{mdbAggregate}]
+\verb{\link[mongolite]\{mongo\}}, \verb{\link{mdbReplace}}
+\verb{\link{mdbFind}}, \verb{\link{mdbAggregate}}
 }

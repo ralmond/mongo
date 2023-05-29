@@ -20,22 +20,34 @@ MongoDB(
 
 \item{db}{character -- name of database}
 
-\item{url}{character -- URI for mongo connection (see [makeDBuri()])}
+\item{url}{character -- URI for mongo connection (see \code{\link[=makeDBuri]{makeDBuri()}})}
 
 \item{verbose}{logical -- Should operate in verbose mode.}
 
 \item{noMongo}{logical -- If true, then no connection to Mongo database will be made,
 and CRUD operations will become no-ops.}
 
-\item{options}{-- SSL options for connections, see [mongolite::ssl_options()].}
+\item{options}{-- SSL options for connections, see \code{\link[mongolite:ssl_options]{mongolite::ssl_options()}}.}
+}
+\value{
+An object of class \code{MongoDB}
 }
 \description{
 MongoDB -- R6 class wrapping a connection to a Mongo database collection.
 }
+\details{
+Including a \link[mongolite]{mongo} object in an R6 (Reference) class presents a potential race condition.
+The prototype class is built at package load time, however, calling the \verb{\link[mongolite]\{mongo\}} may not work
+at this time.  The \code{MongoDB} class works around this by capturing the arguments to the \code{mongo} call, and then
+creating the actual database connection when the database is first accessed.  The database should always be accessed
+through the \verb{$db()} method which builds the database if needed.
+}
 \section{Fields}{
 
 \describe{
-\item{\code{mongoObj}}{ANY -- This is the actual `\link[mongolite]{mongo}` object or `NULL` if it has not been initialized yet.}
+\item{\code{mongoObj}}{ANY -- This is the actual
+\verb{\link[mongolite]\{mongo\}} object or \code{NULL} if it has
+not been initialized yet.}
 
 \item{\code{uri}}{character -- URI for the mongo connection.}
 
@@ -43,50 +55,59 @@ MongoDB -- R6 class wrapping a connection to a Mongo database collection.
 
 \item{\code{colname}}{character -- The name of the mongo collection}
 
-\item{\code{noMongo}}{logical -- If `TRUE`, then the various methods will turn into NO-OPS.
-This allows a class which contains a reference to a Mongo database to ignore the database calls when
+\item{\code{noMongo}}{logical -- If \code{TRUE}, then the
+This allows a class which contains a reference to a
+Mongo database to ignore the database calls when
 there is no database to connect to.}
 
-\item{\code{verbose}}{logical -- This field is passed on to the `\link[mongolite]{mongo}` call.}
+\item{\code{verbose}}{logical -- This field is passed on
+to the \verb{\link[mongolite]\{mongo\}} call.}
 
-\item{\code{options}}{ANY -- This field is passed on to the  `\link[mongolite]{mongo}` call.  It is used to store additional SSL connection information.
-
-Including a \link[mongolite]{mongo} object in an R6 (Reference) class presents a potential race condition.
-The prototype class is built at package load time, however, calling the `\link[mongolite]{mongo}` may not work
-at this time.  The `MongoDB` class works around this by capturing the arguments to the `mongo` call, and then
-creating the actual database connection when the database is first accessed.  The database should always be accessed
-through the `$db()` method which builds the database if needed.}
+\item{\code{options}}{ANY -- This field is passed on to
+the  \verb{\link[mongolite]\{mongo\}} call.  It is used to
+store additional SSL connection information, see
+\verb{\link[mongolite]\{ssl_options\}}.}
 }}
 
 
 \note{
-Many of the examples use `MongoDB(...,noMongo=!interactive())`.
+Many of the examples use \code{MongoDB(...,noMongo=!interactive())}.
 This means the dummy mechanism will be used during package checking
 (where Mongo may or may not be available in the development
 environment), but running the examples from the help files will
 make the connections (and will generate an error if Mongo is not
 installed).
 }
+\section{Class-based Methods}{
+
+\itemize{
+\item \verb{$initialize(collection, db, url, verbose, options, ...)} -- Constructor.
+\item \verb{$db()} --   Returns the the actual database connection
+(\verb{\link[mongolite]\{mongo\}} object), or \code{NULL} if \code{uri==""} or
+\code{noMongo==TRUE}.  If the actual call to `\link[mongolite]{mongo}
+has not been made, this method will create the connection;
+otherwise, the cached connection is returned.
+\item \verb{$available()} --  Returns false if no database is present (i.e.,
+\code{noMongo} is \code{TRUE}. Used to suppress actual mongo calls when
+database is not available.
+\item \verb{$resetDB()} -- Resets the \code{mongoObj} field to force a
+reconnection to Mongo the next time \verb{$db()} is called.  This is
+probably useful to call when restoring an R session.
+\item \verb{$toString()} -- Returns a string represenation of an object.
+}
+}
+
 \section{Methods}{
 
 
-These two R6 methods are mostly for internal use.
-
-* `$db()` -- Returns an object of class `\link[mongolite]{mongo}` which is
-the actual databse, or `NULL` if `uri==""` or `noMongo==TRUE`.
-This will open the database if it has not yet been created,
-or otherwise return the stashed database.
-* `$noMongo()` logical -- Returns the contents of the `noMongo` field.  Used to suppress actual mongo calls
-* `$resetDB()` -- This sets the internal `mongoObj` field to `NULL` so
-the connection will be rebuilt on the next call to `$db()`.  This is probably
-useful to call when restoring an R Session from
-
-For the most part, the following S4 generic functions provide the normal database operation on the collection:
-`\link{mdbAggregate}`, `\link{mdbCount}`, `\link{mdbDisconnect}`, `\link{mdbDrop}`,
-`\link{mdbExport}`, `\link{mdbFind}`, `\link{mdbImport}`, `\link{mdbIndex}`,
-`\link{mdbInsert}`, `\link{mdbIterate}`, `\link{mdbMapreduce}`,
-`\link{mdbRemove}`, `\link{mdbRename}`, `\link{mdbReplace}`,
-`\link{mdbRun}`, `\link{mdbUpdate}`.
+The S4 generic functions correspond to the normal \link{CRUD}
+(Create, Read, Update and Delete) methods.  Particularly:
+\verb{\link{mdbAggregate}}, \verb{\link{mdbCount}}, \verb{\link{mdbDisconnect}}, \verb{\link{mdbDrop}},
+\verb{\link{mdbExport}}, \verb{\link{mdbFind}}, \verb{\link{mdbImport}}, \verb{\link{mdbIndex}},
+\verb{\link{mdbInsert}}, \verb{\link{mdbIterate}}, \verb{\link{mdbMapreduce}},
+\verb{\link{mdbRemove}}, \verb{\link{mdbRename}}, \verb{\link{mdbReplace}},
+\verb{\link{mdbRun}}, \verb{\link{mdbUpdate}}, \verb{\link{showCollections}} and
+\verb{\link{showDatabases}}.
 }
 
 \examples{
@@ -101,6 +122,6 @@ mdbCount(nullmdp)
 }
 \seealso{
 [\link[mongolite]{mongo}]
-More extensive documentation on most of the `mdbXXX` functions can be found at the Mongo API documentation web site.
+More extensive documentation on most of the \code{mdbXXX} functions can be found at the Mongo API documentation web site.
 \url{https://www.mongodb.com/docs/manual/reference/command/}
 }

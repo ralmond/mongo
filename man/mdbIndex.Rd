@@ -26,12 +26,12 @@ data frame desribing indexes.
 Build/remove an index for the collection.
 }
 \details{
-If `add` is specified, then a new index is added.  If `remove` then
+If \code{add} is specified, then a new index is added.  If \code{remove} then
 the index is removed.  If neither is specified, then a data frame
 giving the existing indexes is returned.
 
-The syntax of the `add` field is similar to the `sort` argument of
-`\link{mdbFind}.  The `remove` function uses the `name` from the
+The syntax of the \code{add} field is similar to the \code{sort} argument of
+\verb{\link{mdbFind}.  The }remove\verb{function uses the}name` from the
 returned data.frame.
 
 If sorted queries are going to be frequent, then building indexes

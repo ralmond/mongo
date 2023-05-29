@@ -39,13 +39,13 @@ mdbAggregate(
 \item{pipeline}{character -- a json object describing the pipeline.}
 
 \item{options}{character -- a json object giving options to the pipeline.  (This is missing from
-the `mongolite` documentation, so see Mongo documentation).}
+the \code{mongolite} documentation, so see Mongo documentation).}
 
 \item{handler}{-- undocumented.}
 
 \item{pagesize}{integer -- Size of pages}
 
-\item{iterate}{logical -- If `TRUE` return an iterator (see `\link{mdbIterate}`), if false a `data.frame`.}
+\item{iterate}{logical -- If \code{TRUE} return an iterator (see \verb{\link{mdbIterate}}), if false a \code{data.frame}.}
 }
 \value{
 Data frame or iterator with query results.
@@ -54,7 +54,7 @@ Data frame or iterator with query results.
 Execute Aggregration Pipeline
 }
 \details{
-Execute a pipeline using the Mongo aggregation framework.  Set `iterate = TRUE` to return an iterator
+Execute a pipeline using the Mongo aggregation framework.  Set \code{iterate = TRUE} to return an iterator
 instead of a data frame.
 }
 \examples{

@@ -39,12 +39,12 @@ or negative one for increasing or decreasing order. Use the value
 \item{skip}{integer  This many records should be skipped before returning records}
 
 \item{limit}{A numeric scalar giving the maximum number of objects to
-retrieve.  If `Inf`, then all objects matching the query will be retrieved.}
+retrieve.  If \code{Inf}, then all objects matching the query will be retrieved.}
 }
 \value{
 The function \code{getOneRec} returns an object whose type is determined by
-the output of the \code{builder} function.  The default `\link{buildObject}` method uses
-the `class` field of the record is used to select the object type.  (It assumes a `\link{parse.jlist}`
+the output of the \code{builder} function.  The default \verb{\link{buildObject}} method uses
+the \code{class} field of the record is used to select the object type.  (It assumes a \verb{\link{parse.jlist}}
 method is available for that object type.)
 
 The function \code{getManyRecs} returns a list of object whose type is

@@ -47,17 +47,17 @@ mdbImport(db, con, bson = FALSE)
 
 \item{con}{connetion -- a file or other connection for import/export}
 
-\item{bson}{logical -- If `TRUE` use BSON (binary JSON) if `FALSE`
-then `JSON`}
+\item{bson}{logical -- If \code{TRUE} use BSON (binary JSON) if \code{FALSE}
+then \code{JSON}}
 
 \item{query}{character -- JSON expression providing a query
-selecting records to export.  See `\link{buildJQuery}`.}
+selecting records to export.  See \verb{\link{buildJQuery}}.}
 
 \item{fields}{character -- JSON expression selecting fields of the
-objects to be exported.  See `\link{mdbFind}` for details.}
+objects to be exported.  See \verb{\link{mdbFind}} for details.}
 
 \item{sort}{character -- JSON expression indicating field and
-direction for sorting exported records. See `\link{mdbFind}` for details.}
+direction for sorting exported records. See \verb{\link{mdbFind}} for details.}
 }
 \value{
 miniprint object giving the status
@@ -66,12 +66,12 @@ miniprint object giving the status
 Exports/imports data from external JSON or BSON file
 }
 \details{
-The `export` function dumps a collection to a file or other
-connection.  This can be in either plain text (utf8) `JSON` format,
-or a binary `BSON` format (this is specific to Mongo).  The
-`import` function reverses this process.
+The \code{export} function dumps a collection to a file or other
+connection.  This can be in either plain text (utf8) \code{JSON} format,
+or a binary \code{BSON} format (this is specific to Mongo).  The
+\code{import} function reverses this process.
 
-On export, the `query`, `fields` and `sort` fields can be used to
+On export, the \code{query}, \code{fields} and \code{sort} fields can be used to
 control what is exported.
 }
 \examples{

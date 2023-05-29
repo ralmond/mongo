@@ -7,19 +7,19 @@
 parseSimpleData(messData)
 }
 \arguments{
-\item{messData}{list output from `\link[jsonlite]{fromJSON}`}
+\item{messData}{list output from \verb{\link[jsonlite]\{fromJSON\}}}
 }
 \value{
 list, simplified.
 }
 \description{
-Simple parser works with data which is mostly primitive R types (`numeric`, `integer`, `logical`,
-`character`).
+Simple parser works with data which is mostly primitive R types (\code{numeric}, \code{integer}, \code{logical},
+\code{character}).
 }
 \details{
-The `\link[jsonlite]{fromJSON}` method does not distinguish between arrays type character,
+The \verb{\link[jsonlite]\{fromJSON\}} method does not distinguish between arrays type character,
 logical, integer or numeric.  This function finds lists of a single atomic type and
-replaces them with the corresponding `vector`.
+replaces them with the corresponding \code{vector}.
 }
 \examples{
 parseSimpleData(list(chars=list("a","b","c"),nums=list(2.3,3.4,4.5),

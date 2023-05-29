@@ -4,32 +4,31 @@
 \alias{jlist}
 \title{List representation of a document.}
 \description{
-A `namedList` which corresponds to a Mongo document; this is not an
+A \code{namedList} which corresponds to a Mongo document; this is not an
 official type, but rather a particular use of use of the primitive
-`namedList` type.  The field names are given by the names and the
+\code{namedList} type.  The field names are given by the names and the
 values are the list values.  If any of the elements is a list, then
-it is a sub-document.  The `jsonlite` package provides a `toJSON`
-and `fromJSON` method for converting between jlists and JSON
+it is a sub-document.  The \code{jsonlite} package provides a \code{toJSON}
+and \code{fromJSON} method for converting between jlists and JSON
 character objects.
 }
 \details{
 Note that R makes no distinction between scalars and vectors of
-length 1; however, JSON does.  For example, '{"scalar":0,
-"vector":[0]}'.  The `jsonlite` package provides a tool
-`\link[jsonlite]{unbox}` which marks the element as a scalar.  The
-function `\link{unboxer}` will do this recursively over a jlist
+length 1; however, JSON does.  For example, \code{'{"scalar":0, "vector":[0]}'}.  The \code{jsonlite} package provides a tool
+\verb{\link[jsonlite]\{unbox\}} which marks the element as a scalar.  The
+function \verb{\link{unboxer}} will do this recursively over a jlist
 object.
 
 The distinction between vectors and scalars is unimportant if the
 goal is simply to save and restore the object, but if the goal is
-to build an index over the field (`\link{mdbIndex}`), then scalars
+to build an index over the field (\verb{\link{mdbIndex}}), then scalars
 are easier to work with than vectors.  To covert an S4 object to a
-class, the solution is to write a method for the `\link{as.jlist}`
+class, the solution is to write a method for the \verb{\link{as.jlist}}
 method which makes appropriate transformations of the fields (and a
-`\link{parse.jlist}` method to reverse the process).
+\verb{\link{parse.jlist}} method to reverse the process).
 }
 \seealso{
-[\link{as.jlist}], [\link{buildObject}], [\link[jsonlite]{toJSON}],
-[\link[jsonlite]{fromJSON}]  [\link{mdbIterate}],
-[\link[jsonlite]{unbox}], [\link{unboxer}]
+\verb{\link{as.jlist}}, \verb{\link{buildObject}}, \verb{\link[jsonlite]\{toJSON\}},
+\verb{\link[jsonlite]\{fromJSON\}},  \verb{\link{mdbIterate}},
+\verb{\link[jsonlite]\{unbox\}}, \verb{\link{unboxer}}
 }

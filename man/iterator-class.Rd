@@ -5,44 +5,64 @@
 \alias{iterator-class}
 \alias{iterator}
 \title{An object which iterates over a collection}
+\usage{
+iterator(elements = list())
+}
+\arguments{
+\item{elements}{A list of elements for the iterator to return.}
+}
 \value{
 An object of class iterator.
+
+The newly created iterator.
 }
 \description{
-An object which iterates over a collection
+An \code{iterator} loops through a collection using the \verb{$hasNext()} and \verb{$nextElement()} methods.
+This class also supports the \verb{$one()} and \verb{$batch()} methods to mimic the iterator returned
+by the \verb{\link[mongolite]\{mongo\}()$iterate()} method.
 }
 \section{Fields}{
 
 \describe{
-\item{\code{elements}}{list -- The object to return}
+\item{\code{elements}}{list -- The objects to return}
 
-\item{\code{position}}{integer -- a pointer to the last returned object
-
-# Methods
-
-* `$hasNext()` -- logical; returns `TRUE` if collection has been exhausted.
-* `$nextElement(warn=TRUE)` -- returns the next element of the collection.  If there are no unused elements left,
- the method issues a warning (if `warn` is `TRUE`) and returns `NULL`
-* `$one()` -- A synonym for `$nextElement(warn=FALSE)`.  For compatibility with the internal iterator class
- returned by `\link{mdbIterate}.
-* `$batch(count)` -- Returns the next `count` elements in the collection (updating the internal pointer by
-  `count`.
-* `$reset(newElements=list())` -- Resets the pointer back to the beginning of the element collection.
-If the `newElements` argument is not missing, it also replaces the elements collection with the value of
-`newElements`.}
+\item{\code{position}}{integer -- a pointer to the last
+returned object}
 }}
 
 
 \note{
 This is a utility class that serves two purposes.
-(1) It implements a result queue for the `linkS4class{fake_mongo}` class.
-(2) it mimics the iterator returned by the `mdbIterate()`
-generic function, and so can be used in the result queue for the `mdbIterate-fake_mongo` method.
+(1) It implements a result queue for the \verb{linkS4class\{fake_mongo\}} class.
+(2) it mimics the iterator returned by the \code{mdbIterate()}
+generic function, and so can be used in the result queue for the
+\code{mdbIterate-fake_mongo} method.
 
-Unlike the internal iterator class from the `mongolite`, this one has a `$hasNext()` method which is
-part of the general iterator recipe.  The `$one()` and `$batch()` methods should be compatible with the
-internal `mongolite` iterator, can so it can be used as drop in replacement.
+Unlike the internal iterator class from the \code{mongolite}, this one
+has a \verb{$hasNext()} method which is  part of the general iterator
+recipe.  The \verb{$one()} and \verb{$batch()} methods should be compatible
+with the internal \code{mongolite} iterator, can so it can be used as
+drop in replacement.
 }
+\section{Class-based Methods}{
+\itemize{
+\item \verb{$initialize(elements=list(),...)} Constructor
+\item \verb{$hasNext()} -- Logical value.  Checks whether there are unseen
+elements in the collection.  Position is not advanced.
+\item '$nextElement(warn=TRUE)\verb{Returns the next item in the collection and advances the position.  If no items remain, then}NULL\verb{is returned and a warning is issued if}warn\code{is}TRUE`.
+\item \verb{$one()} Returns the next item in the collection.  Designed
+to mimic the return from the \verb{\link[mongolite]\{mongo\}$iterate()}
+function. The next object, or \code{NULL} (without a warning) if the
+collection is empty.
+\item \verb{$batch(count)}  Fetechs \code{count} elements as a list, advancing
+the position by the argument.  Issues a warning if there
+are not \code{count} elements left in the collection.
+Advances the position by \code{count}.
+\item \verb{$reset()} Resets the position back to the beginning.  If an
+argument is supplied, it also replaces the \code{elements}.
+}
+}
+
 \examples{
 iter <- iterator(as.list(1:5))
 while (iter$hasNext())
@@ -51,5 +71,5 @@ while (iter$hasNext())
 
 }
 \seealso{
-`\linkS4class{fake_mongo}`, [mdbIterate()]
+\code{\link[=mdbIterate]{mdbIterate()}}, \verb{\linkS4class{fake_mongo}}
 }

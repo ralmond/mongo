@@ -18,7 +18,7 @@ mdbDistinct(db, key, query = "{}")
 \item{key}{character -- field to extract}
 
 \item{query}{character -- JSON expression indicating subcollection.
-See `\link{buildJQuery}`.}
+See \verb{\link{buildJQuery}}.}
 }
 \value{
 list of values
@@ -27,8 +27,8 @@ list of values
 Find the distinct values of a particular field
 }
 \details{
-Finds the unique values of the field specified by `key`.  If
-`query` is supplied, then search is restricted to records
+Finds the unique values of the field specified by \code{key}.  If
+\code{query} is supplied, then search is restricted to records
 satisfying query.
 }
 \examples{

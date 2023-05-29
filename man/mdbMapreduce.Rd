@@ -20,9 +20,9 @@ mdbMapreduce(db, map, reduce, query = "{}", sort = "{}", limit = 0)
 \item{reduce}{character -- A javascript function to summarize the result}
 
 \item{query}{character -- A JSON query to slect part of the
-collection.  See `\link{buildJQuery}` and `\link{mdbFind}`.}
+collection.  See \verb{\link{buildJQuery}} and \verb{\link{mdbFind}}.}
 
-\item{sort}{charcter -- JSON object giving sorting order for result set (see `\link{mdbFind}`).}
+\item{sort}{charcter -- JSON object giving sorting order for result set (see \verb{\link{mdbFind}}).}
 
 \item{limit}{integer -- maximum number of records to process}
 }
@@ -30,8 +30,8 @@ collection.  See `\link{buildJQuery}` and `\link{mdbFind}`.}
 data frame with results
 }
 \description{
-Runs a map-reduce operation in the database side.  The `map` and
-`reduce` functions are expressed as javascript methods.
+Runs a map-reduce operation in the database side.  The \code{map} and
+\code{reduce} functions are expressed as javascript methods.
 }
 \details{
 The Mongo database manual suggests that aggregation piplelines have
@@ -69,6 +69,6 @@ names(histdata1) <- c("Petal.length","count")
 head(histdata1)
 }
 \seealso{
-[\link[mongolite]{mongo}] [\link{mdbAggregate}]
+\verb{\link[mongolite]\{mongo\}} \verb{\link{mdbAggregate}}
 \url{https://www.mongodb.com/docs/manual/core/map-reduce/}
 }

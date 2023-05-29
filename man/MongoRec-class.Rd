@@ -11,35 +11,35 @@ MongoRec(..., m_id = NA_character_)
 \arguments{
 \item{...}{Other arguments (pass through for initialization method).}
 
-\item{m_id}{character Mongo identifier.  Use `NA_character_` for unsaved objects.}
+\item{m_id}{character Mongo identifier.  Use \code{NA_character_} for unsaved objects.}
 }
 \value{
-The constructor `MongoRec` returns an object of class `MongoRec`.
+The constructor \code{MongoRec} returns an object of class \code{MongoRec}.
 
-The `m_id` method returns a character scalar (with name `oid`) which contains the mongo identifer.
+The \code{m_id} method returns a character scalar (with name \code{oid}) which contains the mongo identifer.
 }
 \description{
 This is a lightweight class meant to be extended.
 It contains a
 single field for a Mongo identifier, which can be accessed using
-the `m_id()` method.  It is meant to store something that is a
-record in a Mongo collection, where `_id` is the Mongo identifier.
+the \code{m_id()} method.  It is meant to store something that is a
+record in a Mongo collection, where \verb{_id} is the Mongo identifier.
 }
 \section{Functions}{
 \itemize{
-\item \code{MongoRec()}: Constructor for `MongoRec`
+\item \code{MongoRec()}: Constructor for \code{MongoRec}
 
 }}
 \section{Slots}{
 
 \describe{
-\item{\code{_id}}{(character) The Mongo ID, `NA_character_` if not saved.}
+\item{\code{_id}}{(character) The Mongo ID, \code{NA_character_} if not saved.}
 }}
 
 \section{Objects from the Class}{
 
 
-Objects can be created by calls to the `MongoRec()` function.
+Objects can be created by calls to the \code{MongoRec()} function.
 }
 
 \examples{
@@ -48,8 +48,8 @@ showClass("MongoRec")
 
 }
 \seealso{
-[as.json()]
-[buildObject()], [saveRec()], [getOneRec()]
+\code{\link[=as.json]{as.json()}}
+\code{\link[=buildObject]{buildObject()}}, \code{\link[=saveRec]{saveRec()}}, \code{\link[=getOneRec]{getOneRec()}}
 }
 \author{
 Russell G. Almond

@@ -7,41 +7,46 @@ MongoDB.class <- function() {
 #'
 #' @name MongoDB-class
 #' @aliases MongoDB
-#' @field mongoObj ANY -- This is the actual `\link[mongolite]{mongo}` object or `NULL` if it has not been initialized yet.
-#' @field uri character -- URI for the mongo connection.
-#' @field dbname character -- The name of the mongo database.
-#' @field colname character -- The name of the mongo collection
-#' @field noMongo logical -- If `TRUE`, then the various methods will turn into NO-OPS.
-#' This allows a class which contains a reference to a Mongo database to ignore the database calls when
-#' there is no database to connect to.
-#' @field verbose logical -- This field is passed on to the `\link[mongolite]{mongo}` call.
-#' @field options ANY -- This field is passed on to the  `\link[mongolite]{mongo}` call.  It is used to store additional SSL connection information.
 #'
+#' @details
 #' Including a \link[mongolite]{mongo} object in an R6 (Reference) class presents a potential race condition.
 #' The prototype class is built at package load time, however, calling the `\link[mongolite]{mongo}` may not work
 #' at this time.  The `MongoDB` class works around this by capturing the arguments to the `mongo` call, and then
 #' creating the actual database connection when the database is first accessed.  The database should always be accessed
 #' through the `$db()` method which builds the database if needed.
 #'
+#' @param collection character -- name of collection
+#' @param db character -- name of database
+#' @param url character -- URI for mongo connection (see [makeDBuri()])
+#' @param verbose logical -- Should operate in verbose mode.
+#' @param noMongo logical -- If true, then no connection to Mongo database will be made,
+#' and CRUD operations will become no-ops.
+#' @param options -- SSL options for connections, see [mongolite::ssl_options()].
+#' @section Class-based Methods:
+#'
+#' * `$initialize(collection, db, url, verbose, options, ...)` -- Constructor.
+#' * `$db()` --   Returns the the actual database connection
+#' (`\link[mongolite]{mongo}` object), or `NULL` if `uri==""` or
+#' `noMongo==TRUE`.  If the actual call to `\link[mongolite]{mongo}
+#' has not been made, this method will create the connection;
+#' otherwise, the cached connection is returned.
+#' * `$available()` --  Returns false if no database is present (i.e.,
+#' `noMongo` is `TRUE`. Used to suppress actual mongo calls when
+#' database is not available.
+#' * `$resetDB()` -- Resets the `mongoObj` field to force a
+#' reconnection to Mongo the next time `$db()` is called.  This is
+#' probably useful to call when restoring an R session.
+#' * `$toString()` -- Returns a string represenation of an object.
 #' @section Methods:
 #'
-#' These two R6 methods are mostly for internal use.
-#'
-#' * `$db()` -- Returns an object of class `\link[mongolite]{mongo}` which is
-#' the actual databse, or `NULL` if `uri==""` or `noMongo==TRUE`.
-#' This will open the database if it has not yet been created,
-#' or otherwise return the stashed database.
-#' * `$noMongo()` logical -- Returns the contents of the `noMongo` field.  Used to suppress actual mongo calls
-#' * `$resetDB()` -- This sets the internal `mongoObj` field to `NULL` so
-#' the connection will be rebuilt on the next call to `$db()`.  This is probably
-#' useful to call when restoring an R Session from
-#'
-#' For the most part, the following S4 generic functions provide the normal database operation on the collection:
+#' The S4 generic functions correspond to the normal \link{CRUD}
+#' (Create, Read, Update and Delete) methods.  Particularly:
 #' `\link{mdbAggregate}`, `\link{mdbCount}`, `\link{mdbDisconnect}`, `\link{mdbDrop}`,
 #' `\link{mdbExport}`, `\link{mdbFind}`, `\link{mdbImport}`, `\link{mdbIndex}`,
 #' `\link{mdbInsert}`, `\link{mdbIterate}`, `\link{mdbMapreduce}`,
 #' `\link{mdbRemove}`, `\link{mdbRename}`, `\link{mdbReplace}`,
-#' `\link{mdbRun}`, `\link{mdbUpdate}`.
+#' `\link{mdbRun}`, `\link{mdbUpdate}`, `\link{showCollections}` and
+#' `\link{showDatabases}`.
 #'
 #' @note
 #' Many of the examples use `MongoDB(...,noMongo=!interactive())`.
@@ -68,13 +73,31 @@ MongoDB.class <- function() {
 #' mdbCount(nullmdp)
 #' # This will return `NA`.
 setRefClass("MongoDB",
-              field=c(mongoObj="ANY",
-                      uri="character",
-                      dbname="character",
-                      colname="character",
-                      noMongo="logical",
-                      verbose="logical",
-                      options = "ANY"),
+            field=c(
+                #' @field mongoObj ANY -- This is the actual
+                #' `\link[mongolite]{mongo}` object or `NULL` if it has
+                #' not been initialized yet.
+                mongoObj="ANY",
+                #' @field uri character -- URI for the mongo connection.
+                uri="character",
+                #' @field dbname character -- The name of the mongo database.
+                dbname="character",
+                #' @field colname character -- The name of the mongo collection
+                colname="character",
+                #' @field noMongo logical -- If `TRUE`, then the
+                #various methods will turn into NO-OPS.
+                #' This allows a class which contains a reference to a
+                #' Mongo database to ignore the database calls when
+                #' there is no database to connect to.
+                noMongo="logical",
+                #' @field verbose logical -- This field is passed on
+                #' to the `\link[mongolite]{mongo}` call.
+                verbose="logical",
+                #' @field options ANY -- This field is passed on to
+                #' the  `\link[mongolite]{mongo}` call.  It is used to
+                #' store additional SSL connection information, see
+                #' `\link[mongolite]{ssl_options}`.
+                options = "ANY"),
               methods=list(
                   initialize= function(collection="test",
                                        db="test", url="mongodb://localhost",
@@ -96,7 +119,6 @@ setRefClass("MongoDB",
                   available = function() {
                     !noMongo
                   },
-                  # This method should probably not be used outside of the class.
                   resetDB = function () {
                     mongoObj <<- NULL
                   },
@@ -106,13 +128,7 @@ setRefClass("MongoDB",
                             ifelse(noMongo,"/dev/null",uri))
                   }))
 #' @rdname MongoDB-class
-#' @param collection character -- name of collection
-#' @param db character -- name of database
-#' @param url character -- URI for mongo connection (see [makeDBuri()])
-#' @param verbose logical -- Should operate in verbose mode.
-#' @param noMongo logical -- If true, then no connection to Mongo database will be made,
-#' and CRUD operations will become no-ops.
-#' @param options -- SSL options for connections, see [mongolite::ssl_options()].
+#' @returns An object of class `MongoDB`
 MongoDB <-
   function (collection="test",
                      db="test", url="mongodb://localhost",
@@ -128,8 +144,9 @@ setOldClass("mongo")
 
 #' Class which supports the mdbCRUD methods.
 #' @name JSONDB-class
-#' @aliases mdbCRUD
+#' @aliases mdbCRUD CRUD
 #'
+#' @details
 #' The CRUD (Create, Read, Update and Delete) are the basic set of
 #' operators for manipulating a database.  The `mongo` package defines
 #' a number of operators (mostly named `mdbXXX`) which calls the
@@ -143,7 +160,7 @@ setOldClass("mongo")
 #' will basically be no-ops.
 #' * [mdbAggregate()] -- Runs an aggregation pipeline
 #' * [mdbCount()] -- Counts records matching query
-#' * [mbdDisconnect()] -- Drops connection to database (will be
+#' * [mdbDisconnect()] -- Drops connection to database (will be
 #' reconnected on next operation).
 #' * [mdbDistinct()] -- Lists unique values of a field.
 #' * [mdbDrop()] -- Drops the collection from the database.  This is a
@@ -193,7 +210,7 @@ setGeneric("mdbAvailable",function(db) standardGeneric("mdbAvailable"))
 setMethod("mdbAvailable","MongoDB",function(db) db$available())
 #' @rdname mdbAvailable
 #' @note
-#' When using the \code{mongolite::\link[mongolite]mongo} collection reference
+#' When using the \code{mongolite::\link[mongolite]{mongo}} collection reference
 #' operations are not skipped.
 setMethod("mdbAvailable","mongo",function(db) TRUE)
 
@@ -269,7 +286,7 @@ mdb.count <-
 #' essentially a partial match for the object.
 #'
 #' @return integer The number of records found (or `NA` if `noMongo = TRUE`)
-#' @seealso [\link[mongolite]{mongo}] [\link{buildJQuery}]
+#' @seealso `\link[mongolite]{mongo}`, `\link{buildJQuery}`
 #' \url{https://www.mongodb.com/docs/manual/reference/command/count/}
 #' @export mdbCount
 #' @exportMethod mdbCount
@@ -521,10 +538,10 @@ mdb.find <-
 #'
 #' The mongo query is a rather rich language.  The simplest version
 #' restricts a field to a specific value.  For example
-#' '{"Species":"virginica"}' would select only virginica irises.
+#' `'{"Species":"virginica"}'` would select only virginica irises.
 #' There are a number of different operators which can used to specify
-#' the query, for examples '{"Species":{$ne:"virginica"}}' and
-#' '{"Species":{$in:["setosa","versicolor"]}}' both select the other
+#' the query, for examples `'{"Species":{$ne:"virginica"}}'` and
+#' `'{"Species":{$in:["setosa","versicolor"]}}'` both select the other
 #' iris types.
 #'
 #' The mongo operators are "$eq" -- equals, "$gt" -- greater than,
@@ -556,8 +573,8 @@ mdb.find <-
 #' length.  See the `sort` function in the Mongo reference manual.
 #'
 #' @return data.frame giving query results
-#' @seealso [\link[mongolite]{mongo}] [\link{buildJQuery}]
-#' [\link{getOneRec}] [\link{getManyRecs}] [\link{mdbIterate}]
+#' @seealso `\link[mongolite]{mongo}`, `\link{buildJQuery}`
+#' `\link{getOneRec}`, `\link{getManyRecs}`, `\link{mdbIterate}`
 #' \url{https://www.mongodb.com/docs/manual/reference/operator/query/}
 #' \url{https://www.mongodb.com/docs/manual/reference/command/find/}
 #' \url{https://www.mongodb.com/docs/manual/reference/method/db.collection.find/#std-label-find-projection}
@@ -730,8 +747,8 @@ mdb.insert <-
 #' elements should be.
 #'
 #' @return Object of class `miniprint` giving status information.
-#' @seealso [\link[mongolite]{mongo}] [\link[jsonlite]{toJSON}]
-#' [\link[jsonlite]{serializeJSON}] [\link{as.json}] [\link{saveRec}]
+#' @seealso `\link[mongolite]{mongo}`, `\link[jsonlite]{toJSON}`,
+#' `\link[jsonlite]{serializeJSON}`, `\link{as.json}`, `\link{saveRec}`
 #' \url{https://www.mongodb.com/docs/manual/reference/method/db.collection.insert/}
 #' @export mdbInsert
 #' @exportMethod mdbInsert
@@ -874,7 +891,7 @@ mdb.mapreduce <-
 #' map-reduce is depricated.
 #'
 #' @return data frame with results
-#' @seealso [\link[mongolite]{mongo}] [\link{mdbAggregate}]
+#' @seealso `\link[mongolite]{mongo}` `\link{mdbAggregate}`
 #' \url{https://www.mongodb.com/docs/manual/core/map-reduce/}
 #'
 #' @export mdbMapreduce
@@ -945,8 +962,8 @@ mdb.remove <-
 #'
 #'
 #' @return miniprint Information about the results.
-#' @seealso [\link[mongolite]{mongo}] [\link{mdbFind}]
-#' [\link{mdbDrop}]
+#' @seealso `\link[mongolite]{mongo}`, `\link{mdbFind}`,
+#' `\link{mdbDrop}`
 #' \url{https://www.mongodb.com/docs/manual/reference/command/delete/}
 #' @export mdbRemove
 #' @exportMethod mdbRemove
@@ -986,7 +1003,7 @@ mdb.rename <-
 #'
 #'
 #' @return miniprint Status Message
-#' @seealso [\link[mongolite]{mongo}]
+#' @seealso `\link[mongolite]{mongo}`
 #' \url{https://www.mongodb.com/docs/manual/reference/command/renameCollection/}
 #' @export mdbRename
 #' @exportMethod mdbRename
@@ -1027,7 +1044,7 @@ mdb.replace <-
 #'
 #'
 #' @return miniprint with results.
-#' @seealso [\link[mongolite]{mongo}] [\link{mdbFind}] [\link{mdbUpdate}]
+#' @seealso `\link[mongolite]{mongo}`, `\link{mdbFind}`, `\link{mdbUpdate}`
 #' \url{https://www.mongodb.com/docs/manual/reference/method/db.collection.replaceOne/}
 #' @export mdbReplace
 #'
@@ -1036,8 +1053,8 @@ mdb.replace <-
 #' field is replaced.  In the `\link{update}` method, the existing
 #' record is modified.
 #'
-#' The `query` arguement should return 0 or 1 arguments.  If it
-#' returns 0 and `upsert` is `TRUE`, then the document is intserted.
+#' The `query` argument should return 0 or 1 arguments.  If it
+#' returns 0 and `upsert` is `TRUE`, then the document is inserted.
 #' The function `mbdUpsert(...)` is an alias for `mdbReplace(...,
 #' upsert=TRUE)`.
 #'
@@ -1085,7 +1102,7 @@ mdb.run <-
 #' @param simplify logical If true, the output structure is simplified.
 #'
 #' @return list containing returned value.
-#' @seealso [\link[mongolite]{mongo}]
+#' @seealso `\link[mongolite]{mongo}`
 #' \url{https://www.mongodb.com/docs/manual/reference/command/}
 #' @export mdbRun
 #' @exportMethod mdbRun
@@ -1164,8 +1181,8 @@ mdb.update <-
 #' `\link{mdbAggregate} for more complex changes.
 #'
 #' @return A list with the returned object.
-#' @seealso [\link[mongolite]{mongo}] [\link{mdbReplace}]
-#' [\link{mdbFind}] [\link{mdbAggregate}]
+#' @seealso `\link[mongolite]{mongo}`, `\link{mdbReplace}`
+#' `\link{mdbFind}`, `\link{mdbAggregate}`
 #' @export mdbUpdate
 #' @exportMethod mdbUpdate
 #'
@@ -1223,7 +1240,7 @@ show.databases <-
 #' `url` and `ssl_options` from a `mongolite::mongo` object.
 #'
 #' @return a data frame containing the names and sizes of the databases
-#' @seealso [\link[mongolite]{mongo}] [\link{mdbRun}]
+#' @seealso `\link[mongolite]{mongo}`, `\link{mdbRun}`
 #' @export showDatabases
 #' @exportMethod showDatabases
 #'

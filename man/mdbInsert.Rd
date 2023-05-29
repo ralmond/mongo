@@ -25,43 +25,46 @@ will be inserted}
 \item{...}{-- extra data}
 }
 \value{
-Object of class `miniprint` giving status information.
+Object of class \code{miniprint} giving status information.
 }
 \description{
-Inserts one or more records.  If the `data` argument is a `data.frame`, then
+Inserts one or more records.  If the \code{data} argument is a \code{data.frame}, then
 each row becomes a new record.
 }
 \details{
-### Data frames
+\subsection{Data frames}{
 
 Data frames are converted into mongo documents and then inserted.
 Each row is a document, and the fields in the document correspond
 to properties.  This is perhaps the easiest way to use this
-function.  `mdbInsert` save a data frame in a mongo collection and
-`\link{mdbFind}` retrieves it.
+function.  \code{mdbInsert} save a data frame in a mongo collection and
+\verb{\link{mdbFind}} retrieves it.
+}
 
-### Character
+\subsection{Character}{
 
 An alternative is to express the document to be stored as a JSON
 string.  If the input is a character vector with each element being
 a complete JSON document, these will be added to the collection.
-The function `\link[jsonlite]{serializeJSON}` in the jsonlite
+The function \verb{\link[jsonlite]\{serializeJSON\}} in the jsonlite
 package converts an R object to JSON in a way that will reproduce
 the object but is not particularly easy to find or index in the
-database.  The function `\link{jsonlite}{toJSON}` produces a more
+database.  The function \verb{\link{jsonlite}{toJSON}} produces a more
 readable version, but still has issues (in partuclar, it does not
 distinguish between scalar and vector fields).  The function
-`\link{as.json}` provides a mechanism for encoding S4 objects as
+\verb{\link{as.json}} provides a mechanism for encoding S4 objects as
 JSON expressions.
 
-The function `\link{saveRec}` provides a more object-oriented
+The function \verb{\link{saveRec}} provides a more object-oriented
 interface for saving a single S4 object.
+}
 
-### List
+\subsection{List}{
 
-The source code for `\link[mongolite]{mongo}()$insert()` provides a
+The source code for \verb{\link[mongolite]\{mongo\}()$insert()} provides a
 mechanism for using lists, but does not describe what the lists
 elements should be.
+}
 }
 \examples{
 irisdb <- MongoDB("iris",noMongo=!interactive())
@@ -77,7 +80,7 @@ mdbInsert(testdb,'{"Student":"Fred", "Scores":[83, 87, 91, 79],
 
 }
 \seealso{
-[\link[mongolite]{mongo}] [\link[jsonlite]{toJSON}]
-[\link[jsonlite]{serializeJSON}] [\link{as.json}] [\link{saveRec}]
+\verb{\link[mongolite]\{mongo\}}, \verb{\link[jsonlite]\{toJSON\}},
+\verb{\link[jsonlite]\{serializeJSON\}}, \verb{\link{as.json}}, \verb{\link{saveRec}}
 \url{https://www.mongodb.com/docs/manual/reference/method/db.collection.insert/}
 }

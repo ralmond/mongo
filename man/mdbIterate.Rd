@@ -56,12 +56,12 @@ mdbFindL(
 \arguments{
 \item{db}{(or MongoDB mongo) -- the database collection.}
 
-\item{query}{character -- A query string in `JSON` format.  See
-`\link{buildJQuery}` and `\link{mdbFind}.`}
+\item{query}{character -- A query string in \code{JSON} format.  See
+\verb{\link{buildJQuery}} and \code{\link{mdbFind}.}}
 
 \item{fields}{character -- A JSON expression describing which
 fields to extract from the selected records.  The default returns
-all fields except for the internal Mongo id field (see `\link{m_id}`.}
+all fields except for the internal Mongo id field (see \verb{\link{m_id}}.}
 
 \item{sort}{character -- A JSON field indicating how the record
 should be sorted.}
@@ -77,17 +77,19 @@ An iterator with the values.
 Returns documents as lists (jlists) from the database.
 }
 \details{
-Unlike the `\link{mdbFind}` operation, which converts to the query
-output to a data frame, `mdbIterate` produces an iterator, which
-will cycle through the query results, which are returned as `\link{jlist}`
+Unlike the \verb{\link{mdbFind}} operation, which converts to the query
+output to a data frame, \code{mdbIterate} produces an iterator, which
+will cycle through the query results, which are returned as \verb{\link{jlist}}
 objects.
 }
 \section{Iterators}{
 
 
 The iterator object returned from this function has two methods:
-* `$one()`  -- Returns the next object, or `NULL` if there is none.
-* `$batch(n)` -- Returns the next `n` objects.
+\itemize{
+\item \verb{$one()}  -- Returns the next object, or \code{NULL} if there is none.
+\item \verb{$batch(n)} -- Returns the next \code{n} objects.
+}
 }
 
 \examples{

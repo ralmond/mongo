@@ -16,7 +16,7 @@ mdbRemove(db, query = "{}", just_one = FALSE)
 \item{db}{(or MongoDB mongo) -- Collection affected.}
 
 \item{query}{character -- Mongo query expressed as JSON object.
-See `\link{buildJQuery}` and `\link{mdbFind}`.}
+See \verb{\link{buildJQuery}} and \verb{\link{mdbFind}}.}
 
 \item{just_one}{logical -- If true, only the first matching record
 is removed.}
@@ -26,7 +26,7 @@ miniprint Information about the results.
 }
 \description{
 Query selects a subset of the collection to remove.  Note for
-removing everything, `\link{mdbDrop}` is faster.
+removing everything, \verb{\link{mdbDrop}} is faster.
 }
 \examples{
 irisdb <- MongoDB("iris",noMongo=!interactive())
@@ -37,7 +37,7 @@ mdbRemove(irisdb,'{"Species":"setosa"}')
 mdbCount(irisdb)
 }
 \seealso{
-[\link[mongolite]{mongo}] [\link{mdbFind}]
-[\link{mdbDrop}]
+\verb{\link[mongolite]\{mongo\}}, \verb{\link{mdbFind}},
+\verb{\link{mdbDrop}}
 \url{https://www.mongodb.com/docs/manual/reference/command/delete/}
 }

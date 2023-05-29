@@ -7,7 +7,7 @@
 saveRec(col, rec, serialize = TRUE)
 }
 \arguments{
-\item{col}{(or MongoDB mongo NULL) A mongo collection reference.  If `NULL` record will not be saved.}
+\item{col}{(or MongoDB mongo NULL) A mongo collection reference.  If \code{NULL} record will not be saved.}
 
 \item{rec}{The message (object) to be saved.}
 

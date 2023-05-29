@@ -21,12 +21,12 @@ mdbUpsert(db, query, update = "{}", upsert = TRUE)
 \arguments{
 \item{db}{(or MongoDB mongo) Reference to the collection.}
 
-\item{query}{character Query as JSON document, see `\link{mdbFind}`
-and `\link{buildJQuery}`.}
+\item{query}{character Query as JSON document, see \verb{\link{mdbFind}}
+and \verb{\link{buildJQuery}}.}
 
 \item{update}{character Replacement document in JSON format.}
 
-\item{upsert}{logical If `TRUE` document will be inserted if the
+\item{upsert}{logical If \code{TRUE} document will be inserted if the
 query does not return a result.}
 }
 \value{
@@ -36,14 +36,13 @@ miniprint with results.
 Replace a document with a new document
 }
 \details{
-In this method, the entire selected document (including the `_id`
-field is replaced.  In the `\link{update}` method, the existing
+In this method, the entire selected document (including the \verb{_id}
+field is replaced.  In the \verb{\link{update}} method, the existing
 record is modified.
 
-The `query` arguement should return 0 or 1 arguments.  If it
-returns 0 and `upsert` is `TRUE`, then the document is intserted.
-The function `mbdUpsert(...)` is an alias for `mdbReplace(...,
-upsert=TRUE)`.
+The \code{query} argument should return 0 or 1 arguments.  If it
+returns 0 and \code{upsert} is \code{TRUE}, then the document is inserted.
+The function \code{mbdUpsert(...)} is an alias for \code{mdbReplace(..., upsert=TRUE)}.
 }
 \examples{
 testdb <- MongoDB(noMongo=!interactive())
@@ -55,6 +54,6 @@ mdbReplace(testdb,'{"name":"Fred"}', '{"name":"Phred",
 mdbFind(testdb,fields='{}')
 }
 \seealso{
-[\link[mongolite]{mongo}] [\link{mdbFind}] [\link{mdbUpdate}]
+\verb{\link[mongolite]\{mongo\}}, \verb{\link{mdbFind}}, \verb{\link{mdbUpdate}}
 \url{https://www.mongodb.com/docs/manual/reference/method/db.collection.replaceOne/}
 }

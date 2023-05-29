@@ -36,6 +36,6 @@ irisdb <- MongoDB("iris",noMongo=!interactive())
 mdbRun(irisdb,'{"collStats":"iris"}')
 }
 \seealso{
-[\link[mongolite]{mongo}]
+\verb{\link[mongolite]\{mongo\}}
 \url{https://www.mongodb.com/docs/manual/reference/command/}
 }

@@ -23,8 +23,8 @@ mdbRename(mdb, name, db = NULL)
 miniprint Status Message
 }
 \description{
-Using the `name` argument simply renames the collection.  Using the
-`db` argument copies the collection to a new database.
+Using the \code{name} argument simply renames the collection.  Using the
+\code{db} argument copies the collection to a new database.
 }
 \examples{
 mdbDrop(MongoDB("FisherIrises",noMongo=!interactive()))
@@ -34,6 +34,6 @@ mdbRename(irisdb,"FisherIrises")
 showCollections(irisdb)
 }
 \seealso{
-[\link[mongolite]{mongo}]
+\verb{\link[mongolite]\{mongo\}}
 \url{https://www.mongodb.com/docs/manual/reference/command/renameCollection/}
 }

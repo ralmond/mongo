@@ -3,25 +3,10 @@
 \name{parseData}
 \alias{parseData}
 \alias{unparseData}
-\alias{The}
-\alias{`parseData`}
-\alias{function}
-\alias{is}
-\alias{a}
-\alias{helper}
-\alias{for}
-\alias{[parse.jlist()]}
-\alias{methods,}
-\alias{and}
-\alias{`unparseData`}
-\alias{[unparse.jlist()],}
-\alias{which}
-\alias{represents}
-\alias{complex}
-\alias{objects}
-\alias{as}
-\alias{JSON.}
-\title{Prepare R data for storage or restore R data from jlist}
+\title{Prepare R data for storage or restore R data from jlist
+#'
+The \code{parseData} function is a helper function for \code{\link[=parse.jlist]{parse.jlist()}} methods, and \code{unparseData}
+for \code{\link[=as.jlist]{as.jlist()}}, which represents complex objects as JSON.}
 \usage{
 parseData(messData)
 
@@ -35,26 +20,30 @@ unparseData(data, serialize = TRUE)
 \item{serialize}{logical if Tru}
 }
 \value{
-`parseData` returns the parsed object.  `unparseData` returns a jlist or character scalar
+\code{parseData} returns the parsed object.  \code{unparseData} returns a jlist or character scalar
 which can be saved.
 }
 \description{
 Prepare R data for storage or restore R data from jlist
+#'
+The \code{parseData} function is a helper function for \code{\link[=parse.jlist]{parse.jlist()}} methods, and \code{unparseData}
+for \code{\link[=as.jlist]{as.jlist()}}, which represents complex objects as JSON.
 }
 \details{
 There are three strategies for saving/restoring an R object a JSON.
-
-* Use the `\link[jsonlite]{serializeJSON}` and `\link[jsonlite]{unserializeJSON}` method.
+\itemize{
+\item Use the \verb{\link[jsonlite]\{serializeJSON\}} and \verb{\link[jsonlite]\{unserializeJSON\}} method.
 This will faithfully reproduce the object, but it will be difficult to manipulate the object
 outside of R.
-* For an S4 object write a [as.jlist()] and [parse.jlist()] method.
-* For a S3 object or just a list of arbitrary objects, write out the object using
-`\link[jsonlite]{toJSON}` and fix up the types of the components when the object is read back in.
+\item For an S4 object write a \code{\link[=as.jlist]{as.jlist()}} and \code{\link[=parse.jlist]{parse.jlist()}} method.
+\item For a S3 object or just a list of arbitrary objects, write out the object using
+\verb{\link[jsonlite]\{toJSON\}} and fix up the types of the components when the object is read back in.
+}
 
-When `unparseData(...,serialize=TRUE)` is called, then `parseData` and `unparseData`
+When \code{unparseData(...,serialize=TRUE)} is called, then \code{parseData} and \code{unparseData}
 take the first approache.
 
-Otherwise, it takes the third approach.  In particular, `\link[jsonlite]{fromJSON}` turns
+Otherwise, it takes the third approach.  In particular, \verb{\link[jsonlite]\{fromJSON\}} turns
 a vector which contains all elements of the same type
 (currently only "logical", "integer", "numeric" and "character")
 it turns the list into a vector of the corresponding mode.

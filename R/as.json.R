@@ -123,8 +123,8 @@ ununboxer <- function (x) {
 #' @details
 #'
 #' Note that R makes no distinction between scalars and vectors of
-#' length 1; however, JSON does.  For example, '{"scalar":0,
-#' "vector":[0]}'.  The `jsonlite` package provides a tool
+#' length 1; however, JSON does.  For example, `'{"scalar":0,
+#' "vector":[0]}'`.  The `jsonlite` package provides a tool
 #' `\link[jsonlite]{unbox}` which marks the element as a scalar.  The
 #' function `\link{unboxer}` will do this recursively over a jlist
 #' object.
@@ -138,9 +138,9 @@ ununboxer <- function (x) {
 #' `\link{parse.jlist}` method to reverse the process).
 #'
 #'
-#' @seealso [\link{as.jlist}], [\link{buildObject}], [\link[jsonlite]{toJSON}],
-#' [\link[jsonlite]{fromJSON}]  [\link{mdbIterate}],
-#' [\link[jsonlite]{unbox}], [\link{unboxer}]
+#' @seealso `\link{as.jlist}`, `\link{buildObject}`, `\link[jsonlite]{toJSON}`,
+#' `\link[jsonlite]{fromJSON}`,  `\link{mdbIterate}`,
+#' `\link[jsonlite]{unbox}`, `\link{unboxer}`
 list()
 
 
@@ -281,16 +281,16 @@ as_json <- function() {}
 #' @param serialize A logical flag. If true,
 #' \code{\link[jsonlite]{serializeJSON}} is used to protect the \code{data}
 #' field (and other objects which might contain complex R code.
-#' @param serialize logical -- Preserve all R information at the expense of legibility. Passed to [mongolite::toJSON()]
-#' @param dataframe ("rows", "columns", "values") -- Order for data frames. Passed to [mongolite::toJSON()]
-#' @param matrix ("rowmajor" "columnmajor") -- Order for matrix elements.  Passed to [mongolite::toJSON()]
-#' @param Date ("ISO8601" "epoch") -- Passed to [mongolite::toJSON()]
-#' @param POSIXt ("string" "ISO8601" "epoch" "mongo") -- Date/time format. Passed to [mongolite::toJSON()]
-#' @param complex ("string" "list") -- Representation for complex numbers.  Passed to [mongolite::toJSON()]
-#' @param factor ("string" "list") -- Treatment of factor variables.  Passed to [mongolite::toJSON()]
-#' @param raw ("base64" "hex" "mongo" "int" "js") -- Treatment of raw data.  Passed to [mongolite::toJSON()]
-#' @param null ("list" "null") -- Treatment of null fields. Passed to [mongolite::toJSON()]
-#' @param na ("null" "string") -- Representation for NA's.  Passed to [mongolite::toJSON()]
+#' @param serialize logical -- Preserve all R information at the expense of legibility. Passed to [jsonlite::toJSON()]
+#' @param dataframe ("rows", "columns", "values") -- Order for data frames. Passed to [jsonlite::toJSON()]
+#' @param matrix ("rowmajor" "columnmajor") -- Order for matrix elements.  Passed to [jsonlite::toJSON()]
+#' @param Date ("ISO8601" "epoch") -- Passed to [jsonlite::toJSON()]
+#' @param POSIXt ("string" "ISO8601" "epoch" "mongo") -- Date/time format. Passed to [jsonlite::toJSON()]
+#' @param complex ("string" "list") -- Representation for complex numbers.  Passed to [jsonlite::toJSON()]
+#' @param factor ("string" "list") -- Treatment of factor variables.  Passed to [jsonlite::toJSON()]
+#' @param raw ("base64" "hex" "mongo" "int" "js") -- Treatment of raw data.  Passed to [jsonlite::toJSON()]
+#' @param null ("list" "null") -- Treatment of null fields. Passed to [jsonlite::toJSON()]
+#' @param na ("null" "string") -- Representation for NA's.  Passed to [jsonlite::toJSON()]
 #' @return
 #'
 #' The function \code{as.json} returns a unicode string with a serialized
@@ -401,10 +401,10 @@ setMethod("as.json","MongoRec",
 #' `decodeClass()` will try to coerce it into a character vector.
 #' @export codeClass
 #' @examples
-#' codeClass(MongoRec())
-#' codeClass(matrix(1:4,2,2))
-#' decodeClass(codeClass(MongoRec())
-#' decodeClass(codeClass(matrix(1:4,2,2)))
+#' codeClass(class(MongoRec()))
+#' codeClass(class(matrix(1:4,2,2)))
+#' decodeClass(codeClass(class(MongoRec())))
+#' decodeClass(codeClass(class(matrix(1:4,2,2))))
 #'
 codeClass <- function(class) {
   pack <- attr(class,"package")
@@ -413,7 +413,7 @@ codeClass <- function(class) {
   }
   unboxer(class)
 }
-#' @rdname decodeClass
+#' @rdname codeClass
 #' @export decodeClass
 decodeClass <- function (class) {
   class <- as.character(ununboxer(class))
@@ -601,11 +601,11 @@ parseSimpleData <- function (messData) {
 }
 
 #' Prepare R data for storage or restore R data from jlist
-#' @aliases unparseData
-#'
+#'#'
 #' The `parseData` function is a helper function for [parse.jlist()] methods, and `unparseData`
-#' for [unparse.jlist()], which represents complex objects as JSON.
+#' for [as.jlist()], which represents complex objects as JSON.
 #'
+#' @aliases unparseData
 #' @param messData (or character jlist)
 #' @param data ANY the data to be saved.
 #' @param serialize logical if Tru
