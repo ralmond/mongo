@@ -261,6 +261,8 @@ buildJQuery <- function (...,rawfields=character()) {
 #' }
 getOneRec <- function(col,jquery='{}',builder=buildObject,
                       sort=buildJQuery(timestamp=-1)) {
+  if (is.null(col) || !mdbAvailable(col))
+    return(NULL);
   it <- mdbIterate(col,jquery,'{}',sort=sort,limit=1)
   rec <- it$one()
   if (is.null(rec)) return(rec)
@@ -271,6 +273,8 @@ getOneRec <- function(col,jquery='{}',builder=buildObject,
 getManyRecs <- function(col,jquery,builder=buildObject,
                         sort=buildJQuery(timestamp=-1),
                         skip=0, limit = 0) {
+  if (is.null(col) || !mdbAvailable(col))
+    return(NULL);
   n <- mdbCount(col,jquery)
   if (limit>0) n <- min(max(n-skip,0),limit)
   result <- vector("list",n-skip)
@@ -329,7 +333,7 @@ getManyRecs <- function(col,jquery,builder=buildObject,
 #'
 #' @export saveRec
 saveRec <- function (col, rec, serialize=TRUE) {
-  if (!is.null(col)) {
+  if (!is.null(col) && mdbAvailable(col)) {
     jso <- as.json(rec,serialize)
     if (is.na(m_id(rec))) {
       ## Insert

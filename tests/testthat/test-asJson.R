@@ -132,6 +132,8 @@ testthat::test_that("unboxer", {
   expect_s3_class(undat$one,"scalar")
   expect_false(is(undat$three,"scalar"))
   expect_equal(ununboxer(undat),dat)
+  now <- as.POSIXlt(Sys.time())
+  expect_equal(ununboxer(now),now)
 })
 
 

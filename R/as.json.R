@@ -96,13 +96,10 @@ ununboxer <- function (x) {
   if (is(x,"scalar")) {
     class(x) <- setdiff(class(x),"scalar")
   } else {
-    if (is.list(x)) {
+    if (is.list(x) && !is(x,"POSIXlt")) {
       x <- lapply(x, function(s) {
-        if (is(s,"POSIXt")) {
-          ununboxer(s)
-      } else {
         sapply(s,ununboxer)
-      }})
+      })
     }
   }
   x

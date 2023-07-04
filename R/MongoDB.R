@@ -1,15 +1,18 @@
 #' @import methods
 
+## TODO would it be better to redo this using R6Class package?
+
+
 MongoDB.class <- function() {
   ## Dummy function so that S4 objects appear in RStudio content page.
 }
-#' MongoDB -- R6 class wrapping a connection to a Mongo database collection.
+#' MongoDB -- Reference class wrapping a connection to a Mongo database collection.
 #'
 #' @name MongoDB-class
 #' @aliases MongoDB
 #'
 #' @details
-#' Including a \link[mongolite]{mongo} object in an R6 (Reference) class presents a potential race condition.
+#' Including a \link[mongolite]{mongo} object in an Reference class presents a potential race condition.
 #' The prototype class is built at package load time, however, calling the `\link[mongolite]{mongo}` may not work
 #' at this time.  The `MongoDB` class works around this by capturing the arguments to the `mongo` call, and then
 #' creating the actual database connection when the database is first accessed.  The database should always be accessed

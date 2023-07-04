@@ -1,0 +1,6 @@
+2023-07-03  Russell Almond  <ralmond@cherry>
+
+	* R/jqmongo.R (saveRec): Added check for available database.
+	(getOneRec): And here.
+	(getManyRecs): And here.
+

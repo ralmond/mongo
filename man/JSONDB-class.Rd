@@ -3,6 +3,7 @@
 \docType{class}
 \name{JSONDB-class}
 \alias{JSONDB-class}
+\alias{JSONDB}
 \alias{mdbCRUD}
 \alias{CRUD}
 \title{Class which supports the mdbCRUD methods.}
