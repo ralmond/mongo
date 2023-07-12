@@ -2,27 +2,32 @@
 testthat::test_that("buildJQterm", {
   expect_equal(buildJQterm("uid","Fred"),'"uid":"Fred"')
   expect_equal(buildJQterm("uid",c("Phred","Fred")),'"uid":{"$in":["Phred","Fred"]}')
-  time1 <- as.POSIXct("2018-08-16 19:12:19 EDT")
-  expect_equal(buildJQterm("time",time1),'"time":{"$date":1534461139000}')
-  time1l <- as.POSIXlt("2018-08-16 19:12:19 EDT")
-  expect_equal(buildJQterm("time",time1l),'"time":{"$date":1534461139000}')
-  time2 <- as.POSIXct("2018-08-16 19:13:19 EDT")
+  ## Need explicit time zone as test may run on computer in different ime zone.
+  time1 <- as.POSIXct("2018-08-16 19:12:19 EDT", tz="GMT")
+  t1 <- 1534446739L  # internal number time 1000
+  expect_equal(buildJQterm("time",time1),
+               sprintf('"time":{"$date":%d000}',t1))
+  time1l <- as.POSIXlt("2018-08-16 19:12:19 EDT", tz="GMT")
+  expect_equal(buildJQterm("time",time1l),
+               sprintf('"time":{"$date":%d000}',t1))
+  time2 <- as.POSIXct("2018-08-16 19:13:19 EDT", tz="GMT")
+  t2 <- 1534446799L
   expect_equal(buildJQterm("time",c(time1,time2)),
-               '"time":{"$in":[{"$date":1534461139000},{"$date":1534461199000}]}')
+               sprintf('"time":{"$in":[{"$date":%d000},{"$date":%d000}]}',t1,t2))
   expect_equal(buildJQterm("time",c(gt=time1)),
-               '"time":{ "$gt":{"$date":1534461139000} }')
+               sprintf('"time":{ "$gt":{"$date":%d000} }',t1))
   expect_equal(buildJQterm("time",c(lt=time1)),
-               '"time":{ "$lt":{"$date":1534461139000} }')
+               sprintf('"time":{ "$lt":{"$date":%d000} }',t1))
   expect_equal(buildJQterm("time",c(gte=time1)),
-               '"time":{ "$gte":{"$date":1534461139000} }')
+               sprintf('"time":{ "$gte":{"$date":%d000} }',t1))
   expect_equal(buildJQterm("time",c(lte=time1)),
-               '"time":{ "$lte":{"$date":1534461139000} }')
+               sprintf('"time":{ "$lte":{"$date":%d000} }',t1))
   expect_equal(buildJQterm("time",c(ne=time1)),
-             '"time":{ "$ne":{"$date":1534461139000} }')
+               sprintf('"time":{ "$ne":{"$date":%d000} }',t1))
   expect_equal(buildJQterm("time",c(eq=time1)),
-             '"time":{ "$eq":{"$date":1534461139000} }')
+               sprintf('"time":{ "$eq":{"$date":%d000} }',t1))
   expect_equal(buildJQterm("time",c(gt=time1,lt=time2)),
-             '"time":{ "$gt":{"$date":1534461139000}, "$lt":{"$date":1534461199000} }')
+               sprintf('"time":{ "$gt":{"$date":%d000}, "$lt":{"$date":%d000} }', t1, t2))
   expect_equal(buildJQterm("count",c(nin=1,2:4)),
              '"count":{"$nin":[1,2,3,4]}')
   expect_equal(buildJQterm("count",c("in"=1,2:4)),
