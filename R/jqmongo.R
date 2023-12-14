@@ -263,6 +263,9 @@ getOneRec <- function(col,jquery='{}',builder=buildObject,
                       sort=buildJQuery(timestamp=-1)) {
   if (is.null(col) || !mdbAvailable(col))
     return(NULL);
+  if (is.numeric(sort)) sort <- buildJQuery(timestamp=sort)
+  flog.trace("Database %s, query %s, sort %s",
+             toString(col),jquery,sort)
   it <- mdbIterate(col,jquery,'{}',sort=sort,limit=1)
   rec <- it$one()
   if (is.null(rec)) return(rec)

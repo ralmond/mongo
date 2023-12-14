@@ -1,7 +1,14 @@
 #' @import methods
 
-## TODO would it be better to redo this using R6Class package?
+oldClass(mongo)
+## Missing method
+setMethod("toString","mongo",function(x,...) {
+  paste0("<Mongo collection: '",
+         mongolite:::mongo_collection_name(parent.env(x)$col),
+         "'>")
+})
 
+## TODO would it be better to redo this using R6Class package?
 
 MongoDB.class <- function() {
   ## Dummy function so that S4 objects appear in RStudio content page.
