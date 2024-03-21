@@ -1,6 +1,6 @@
 #' @import methods
 
-oldClass(mongo)
+setOldClass("mongo")
 ## Missing method
 setMethod("toString","mongo",function(x,...) {
   paste0("<Mongo collection: '",

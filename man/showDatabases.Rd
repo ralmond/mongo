@@ -18,7 +18,7 @@ showDatabases(
   options = mongolite::ssl_options()
 )
 
-\S4method{showDatabases}{`NULL`}(
+\S4method{showDatabases}{NULL}(
   db = NULL,
   uri = "mongodb://localhost",
   options = mongolite::ssl_options()

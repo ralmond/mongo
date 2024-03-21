@@ -4,7 +4,7 @@
 \name{MongoDB-class}
 \alias{MongoDB-class}
 \alias{MongoDB}
-\title{MongoDB -- R6 class wrapping a connection to a Mongo database collection.}
+\title{MongoDB -- Reference class wrapping a connection to a Mongo database collection.}
 \usage{
 MongoDB(
   collection = "test",
@@ -33,10 +33,10 @@ and CRUD operations will become no-ops.}
 An object of class \code{MongoDB}
 }
 \description{
-MongoDB -- R6 class wrapping a connection to a Mongo database collection.
+MongoDB -- Reference class wrapping a connection to a Mongo database collection.
 }
 \details{
-Including a \link[mongolite]{mongo} object in an R6 (Reference) class presents a potential race condition.
+Including a \link[mongolite]{mongo} object in an Reference class presents a potential race condition.
 The prototype class is built at package load time, however, calling the \verb{\link[mongolite]\{mongo\}} may not work
 at this time.  The \code{MongoDB} class works around this by capturing the arguments to the \code{mongo} call, and then
 creating the actual database connection when the database is first accessed.  The database should always be accessed

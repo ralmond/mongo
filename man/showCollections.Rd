@@ -28,7 +28,7 @@ showCollections(
   options = mongolite::ssl_options()
 )
 
-\S4method{showCollections}{`NULL`}(
+\S4method{showCollections}{NULL}(
   db = NULL,
   dbname = "test",
   uri = "mongodb://localhost",

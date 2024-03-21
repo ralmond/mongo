@@ -496,7 +496,7 @@ buildObject <- function (rec, class=decodeClass(rec$class)) {
       class(result) <- class
     } else {
       ## S4 class
-      result <- do.call("new",c(class,rec))
+      result <- do.call("new",c(list(class),rec))
     }
   }
   result
