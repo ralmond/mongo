@@ -1,8 +1,8 @@
 Package: mongo
 Type: Package
 Title: Higher level interface to Mongo database
-Version: 0.9-3
-Date: 2023/07/03
+Version: 0.9-4
+Date: 2024/03/21
 Authors@R: 
     person(given = "Russell",
            family = "Almond",

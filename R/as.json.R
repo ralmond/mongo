@@ -532,7 +532,7 @@ buildObject <- function (rec, class=decodeClass(rec$class)) {
 #' vignette("JSON for S4 Objects")
 #' }
 parse.json <- function(encoded, builder=buildObject) {
-  jlist <- jsonlite::fromJSON(encoded)
+  jlist <- jsonlite::fromJSON(encoded,FALSE)
   do.call(builder,list(jlist))
 }
 
