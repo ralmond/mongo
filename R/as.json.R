@@ -105,6 +105,38 @@ ununboxer <- function (x) {
   x
 }
 
+#' Convert Mongo dates to POSIX
+#'
+#' Converting a date to Mongo-flavored JSON produces
+#' a numeric value (number of second seconds since Jan 1, 1970)
+#' labeled with `$date`.  This function takes the output of
+#' `\link[jsonlite]{fromJSON}` and converts it back to POSIX format.
+#'
+#' @param x -- Either a list of the form `list("$date"=1234)` or any other value
+#' compatible with `link[base]{as.POSIXct}`.
+#'
+#' @details
+#'
+#' If the date has been marked as scalar (using the `\link{unboxer}` or
+#' `\link[jsonlite]{unbox}`, this function will strip the `scalar` flag.
+#'
+#'
+#' @return the contents of `x` as a `POSIXct` object.
+#' @export
+#'
+#' @examples
+#' dt <- Sys.time()
+#' dtj <- jsonlite::toJSON(unboxer(dt))
+#' parsePOSIX(jsonlite::fromJSON(dtj,FALSE))
+parsePOSIX <- function (x) {
+  if (is(x,"scalar")) {
+    class(x) <- setdiff(class(x),"scalar")
+  }
+  if (is.list(x)) x <- x$`$date`/1000
+  as.POSIXct(x,origin="1970-01-01")
+}
+
+
 
 #' List representation of a document.
 #'
@@ -450,13 +482,14 @@ setGeneric("parse.jlist",function(class,rec)
 
 #' @describeIn parse.json Base case for callNextMethod; just returns
 #' the slot list.
+#'
 setMethod("parse.jlist",c("ANY","list"),
           function(class,rec) {
             rec
             })
 
 isDefaultMethod <- function(meth) {
-  meth@target["class"] == "ANY"
+  meth@defined["class"] == "ANY"
 }
 
 #' @describeIn parse.json This method takes the jlist, cleans it with an appropriate
@@ -481,9 +514,11 @@ buildObject <- function (rec, class=decodeClass(rec$class)) {
     }
   }
 
-  if (!is.null(jlp)) {
+  if (!is.null(jlp) && !isDefaultMethod(jlp)) {
     rec <- do.call(jlp,list(class,rec))
   } else {
+    ## If user has not written an explicit method, this
+    ## has a better chance of working.
     rec <- parseSimpleData(rec)
   }
   rec$class <- NULL # Make sure it is not marked as an extra argument.
@@ -574,6 +609,9 @@ parseSimpleData <- function (messData) {
   if (length(messData) == 0L) return(list())
   for (i in 1:length(messData)) {
     datum <- messData[[i]]
+    if (length(names(datum))==1L && names(datum)=="$date") {
+      datum <- parsePOSIX(datum)
+    }
     if (all(sapply(datum,is.character)) && all(sapply(datum,length)==1L)) {
       datum <- as.character(datum)
       names(datum) <- names(messData[[i]])

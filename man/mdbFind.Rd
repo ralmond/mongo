@@ -101,19 +101,19 @@ inside of R.
 
 The fields JSON expression should be a collection of fields with a
 \code{true} or \code{false} (or 0 or 1).  Note that the "_id" field is
-automatically included unless explicitedly excluded.  For example:
-'{"Petal.Length":1, "Petal.Width":1, "Species":1, "_id":0}' will
-select the petal length and witdth field and species field.  See
+automatically included unless explicitly excluded.  For example:
+\verb{\{"Petal.Length":1, "Petal.Width":1, "Species":1, "_id":0\}} will
+select the petal length and width field and species field.  See
 the topic \code{Projection} in the Mongo manual for more details.
 }
 
 \subsection{sort}{
 
 This is a short object which gives the name of the field to sort on
-and the direction (1 for ascending, -1 for decending).  If more
+and the direction (1 for ascending, -1 for descending).  If more
 than one sort key is given, the first one is given the highest
 priority.  The sort keys should be included in the field.  For example
-'{"Petal.Length":1}' sort in accending order according to petal
+\code{{"Petal.Length":1}} sort in ascending order according to petal
 length.  See the \code{sort} function in the Mongo reference manual.
 }
 }

@@ -222,6 +222,7 @@ buildJQuery <- function (...,rawfields=character()) {
 #' \code{\link[mongolite]{mongo}}
 #' @references The MongoDB Manual: \url{https://docs.mongodb.com/manual/}
 #' @keywords interface database
+#' @importFrom futile.logger flog.trace
 #' @examples
 #'
 #'\dontrun{

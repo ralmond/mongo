@@ -304,13 +304,6 @@ test_that("MongoDB iterate",{
   expect_equal(n,10)
 })
 
-test_that("MongoDB findL",{
-  skip_if_not(MongoAvailable)
-  mdb <- MongoDB("testthis","test","mongodb://localhost")
-  withr::defer(mdbDrop(mdb))
-  skip("Test not written")
-})
-
 test_that("MongoDB remove",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")

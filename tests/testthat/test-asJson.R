@@ -154,3 +154,17 @@ testthat::test_that("parseData", {
   expect_eq(pEvent,anEvent)
 })
 
+testthat::test_that("parsePOSIX", {
+  dt <- Sys.time()
+  expect_equal(parsePOSIX(unboxer(dt)),dt,ignore_attr=c("tzone","waldo_opts"))
+
+  dtjm <- jsonlite::toJSON(unboxer(dt),POSIXt="mongo")
+  dtlm <- jsonlite::fromJSON(dtjm,FALSE)
+  expect_equal(parsePOSIX(dtlm),dt,ignore_attr=c("tzone","waldo_opts"))
+
+  dtjz <- jsonlite::toJSON(unboxer(dt))
+  dtlz <- jsonlite::fromJSON(dtjm,FALSE)
+  expect_equal(parsePOSIX(dtlz),dt,ignore_attr=c("tzone","waldo_opts"))
+
+})
+
