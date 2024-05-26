@@ -79,7 +79,11 @@ NULL
 #' @export ununboxer
 unboxer <- function (x) {
   if (is(x,"list")) {
-    lapply(x,unboxer) #Saves name data.
+    ## Save name data.
+    nx <- names(x)
+    x <- lapply(x,unboxer)
+    names(x) <- nx
+    x
   } else {
     if (length(x) == 1L) {
       jsonlite::unbox(x)
@@ -98,7 +102,10 @@ ununboxer <- function (x) {
   } else {
     if (is.list(x) && !is(x,"POSIXlt")) {
       x <- lapply(x, function(s) {
-        sapply(s,ununboxer)
+        ns <- names(s)
+        s <- sapply(s,ununboxer)
+        names(s) <- ns
+        s
       })
     }
   }

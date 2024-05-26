@@ -134,6 +134,10 @@ testthat::test_that("unboxer", {
   expect_equal(ununboxer(undat),dat)
   now <- as.POSIXlt(Sys.time())
   expect_equal(ununboxer(now),now)
+
+  ldat <- list(a=1,b="foo")
+  expect_equal(ununboxer(unboxer(ldat)),ldat)
+
 })
 
 
