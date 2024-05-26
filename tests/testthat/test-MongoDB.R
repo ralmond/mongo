@@ -315,6 +315,19 @@ test_that("MongoDB remove",{
   expect_equal(mdbCount(mdb),sum(iris$Species != "setosa"))
   })
 
+test_that("MongoDB findL",{
+  skip_if_not(MongoAvailable)
+  irisdb <- MongoDB("iris","test","mongodb://localhost")
+  withr::defer(mdbDrop(irisdb))
+  mdbDrop(irisdb)
+  mdbInsert(irisdb,iris)
+  flower1 <- mdbFindL(irisdb,limit=1)
+  expect_equal(length(flower1),1L)
+  expect_equal(length(flower1[[1]]),5L)
+  flower10 <- mdbFindL(irisdb,limit=10)
+  expect_equal(length(flower10),10L)
+})
+
 test_that("MongoDB disconnect",{
   skip_if_not(MongoAvailable)
   mdb <- MongoDB("testthis","test","mongodb://localhost")
