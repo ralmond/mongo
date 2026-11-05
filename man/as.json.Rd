@@ -60,25 +60,25 @@ as.jlist(obj, ml, serialize = TRUE)
 \arguments{
 \item{x}{An (S4) object to be serialized.}
 
-\item{serialize}{logical -- Preserve all R information at the expense of legibility. Passed to \code{\link[jsonlite:fromJSON]{jsonlite::toJSON()}}}
+\item{serialize}{logical -- Preserve all R information at the expense of legibility. Passed to \code{\link[jsonlite:toJSON]{jsonlite::toJSON()}}}
 
-\item{dataframe}{("rows", "columns", "values") -- Order for data frames. Passed to \code{\link[jsonlite:fromJSON]{jsonlite::toJSON()}}}
+\item{dataframe}{("rows", "columns", "values") -- Order for data frames. Passed to \code{\link[jsonlite:toJSON]{jsonlite::toJSON()}}}
 
-\item{matrix}{("rowmajor" "columnmajor") -- Order for matrix elements.  Passed to \code{\link[jsonlite:fromJSON]{jsonlite::toJSON()}}}
+\item{matrix}{("rowmajor" "columnmajor") -- Order for matrix elements.  Passed to \code{\link[jsonlite:toJSON]{jsonlite::toJSON()}}}
 
-\item{Date}{("ISO8601" "epoch") -- Passed to \code{\link[jsonlite:fromJSON]{jsonlite::toJSON()}}}
+\item{Date}{("ISO8601" "epoch") -- Passed to \code{\link[jsonlite:toJSON]{jsonlite::toJSON()}}}
 
-\item{POSIXt}{("string" "ISO8601" "epoch" "mongo") -- Date/time format. Passed to \code{\link[jsonlite:fromJSON]{jsonlite::toJSON()}}}
+\item{POSIXt}{("string" "ISO8601" "epoch" "mongo") -- Date/time format. Passed to \code{\link[jsonlite:toJSON]{jsonlite::toJSON()}}}
 
-\item{factor}{("string" "list") -- Treatment of factor variables.  Passed to \code{\link[jsonlite:fromJSON]{jsonlite::toJSON()}}}
+\item{factor}{("string" "list") -- Treatment of factor variables.  Passed to \code{\link[jsonlite:toJSON]{jsonlite::toJSON()}}}
 
-\item{complex}{("string" "list") -- Representation for complex numbers.  Passed to \code{\link[jsonlite:fromJSON]{jsonlite::toJSON()}}}
+\item{complex}{("string" "list") -- Representation for complex numbers.  Passed to \code{\link[jsonlite:toJSON]{jsonlite::toJSON()}}}
 
-\item{raw}{("base64" "hex" "mongo" "int" "js") -- Treatment of raw data.  Passed to \code{\link[jsonlite:fromJSON]{jsonlite::toJSON()}}}
+\item{raw}{("base64" "hex" "mongo" "int" "js") -- Treatment of raw data.  Passed to \code{\link[jsonlite:toJSON]{jsonlite::toJSON()}}}
 
-\item{null}{("list" "null") -- Treatment of null fields. Passed to \code{\link[jsonlite:fromJSON]{jsonlite::toJSON()}}}
+\item{null}{("list" "null") -- Treatment of null fields. Passed to \code{\link[jsonlite:toJSON]{jsonlite::toJSON()}}}
 
-\item{na}{("null" "string") -- Representation for NA's.  Passed to \code{\link[jsonlite:fromJSON]{jsonlite::toJSON()}}}
+\item{na}{("null" "string") -- Representation for NA's.  Passed to \code{\link[jsonlite:toJSON]{jsonlite::toJSON()}}}
 
 \item{obj}{The object being serialized}
 

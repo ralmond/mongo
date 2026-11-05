@@ -30,7 +30,6 @@ URL: https://github.com/ralmond/mongo
 Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
-RoxygenNote: 7.3.1
 Config/testthat/edition: 3
 Support: c(
    'Bill & Melinda Gates Foundation grant
@@ -44,3 +43,4 @@ Support: c(
    Fengfeng Ke, PI)',
    'Institute of Educational Statistics Grant: "Exploring adaptive cognitive and affective learning support for next-generation STEM learning games." (#R305A170376-20, Val Shute and Russell Almond, PIs')	
 Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.1.1
